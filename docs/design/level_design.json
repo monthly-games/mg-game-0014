@@ -1,0 +1,109 @@
+{
+  "version": "0.1.0",
+  "experiment_floors": [
+    {
+      "floor": 1,
+      "name": "초급 실험실",
+      "stages": 5,
+      "difficulty": "easy",
+      "enemy_count": 3,
+      "boss": false,
+      "skill_choices": 2,
+      "rewards": {
+        "essence": 100,
+        "unlock": "basic_recipes"
+      }
+    },
+    {
+      "floor": 2,
+      "name": "중급 실험실",
+      "stages": 6,
+      "difficulty": "medium",
+      "enemy_count": 4,
+      "boss": true,
+      "boss_name": "실험체 알파",
+      "skill_choices": 2,
+      "rewards": {
+        "essence": 200,
+        "unlock": "advanced_skills"
+      }
+    },
+    {
+      "floor": 3,
+      "name": "고급 실험실",
+      "stages": 7,
+      "difficulty": "hard",
+      "enemy_count": 5,
+      "boss": true,
+      "boss_name": "폭주한 마법 골렘",
+      "skill_choices": 3,
+      "rewards": {
+        "essence": 400,
+        "unlock": "synergy_slots"
+      }
+    },
+    {
+      "floor": 4,
+      "name": "금지된 연구소",
+      "stages": 8,
+      "difficulty": "very_hard",
+      "enemy_count": 6,
+      "boss": true,
+      "boss_name": "타락한 대마법사",
+      "skill_choices": 3,
+      "rewards": {
+        "essence": 800,
+        "unlock": "legendary_recipes",
+        "crystals": 100
+      }
+    },
+    {
+      "floor": 5,
+      "name": "차원의 틈",
+      "stages": 10,
+      "difficulty": "extreme",
+      "enemy_count": 8,
+      "boss": true,
+      "boss_name": "혼돈의 화신",
+      "skill_choices": 3,
+      "rewards": {
+        "essence": 1500,
+        "unlock": "ultimate_skill",
+        "crystals": 300,
+        "special_skin": "chaos_witch"
+      }
+    }
+  ],
+  "skill_pool": {
+    "common": [
+      { "id": "fireball", "name": "화염구", "damage": 100, "element": "fire" },
+      { "id": "ice_bolt", "name": "냉기", "damage": 80, "element": "ice", "effect": "slow" },
+      { "id": "shock", "name": "전기충격", "damage": 90, "element": "lightning", "effect": "chain" },
+      { "id": "shield", "name": "마법 보호막", "type": "defense" },
+      { "id": "heal", "name": "치유", "type": "utility" }
+    ],
+    "rare": [
+      { "id": "fire_pillar", "name": "불기둥", "damage": 200, "element": "fire" },
+      { "id": "ice_lance", "name": "얼음창", "damage": 180, "element": "ice", "effect": "freeze" },
+      { "id": "chain_lightning", "name": "연쇄번개", "damage": 150, "element": "lightning", "effect": "chain_3" },
+      { "id": "reflect", "name": "반사 보호막", "type": "defense" },
+      { "id": "time_slow", "name": "시간 지연", "type": "utility" }
+    ],
+    "epic": [
+      { "id": "explosion", "name": "폭발", "damage": 400, "element": "fire", "aoe": true },
+      { "id": "blizzard", "name": "블리자드", "damage": 350, "element": "ice", "aoe": true },
+      { "id": "overload", "name": "과부하", "damage": 450, "element": "lightning", "effect": "stun" },
+      { "id": "invincibility", "name": "무적", "type": "defense", "duration": 3 }
+    ],
+    "legendary": [
+      { "id": "meteor", "name": "메테오", "damage": 800, "element": "fire", "aoe": true },
+      { "id": "absolute_zero", "name": "절대영도", "damage": 700, "element": "ice", "effect": "freeze_all" },
+      { "id": "thunderstorm", "name": "뇌우", "damage": 750, "element": "lightning", "aoe": true, "effect": "chain_all" }
+    ]
+  },
+  "difficulty_scaling": {
+    "enemy_hp_per_floor": 1.5,
+    "enemy_damage_per_floor": 1.3,
+    "puzzle_difficulty_per_floor": 1.2
+  }
+}

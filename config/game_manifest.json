@@ -1,0 +1,14 @@
+{
+  "game_id": "game_0014",
+  "code_name": "MG-0014",
+  "title_kr": "마녀의 연구소: 실험형 퍼즐",
+  "title_en": "Witch's Lab: Experimental Puzzle",
+  "genre_tags": ["puzzle", "skill_build", "roguelike"],
+  "target_region": ["KR", "SEA", "Global"],
+  "engine_version": "1.0.0",
+  "analytics_profile": "default_v1",
+  "created_at": "2025-07-01",
+  "status": "development",
+  "year": 2,
+  "common_modules": ["skill_system", "synergy_system"]
+}

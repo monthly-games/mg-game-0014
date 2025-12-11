@@ -1,0 +1,112 @@
+{
+  "version": "0.1.0",
+  "currencies": {
+    "essence": {
+      "display_name": "에센스",
+      "icon": "assets/icons/essence.png",
+      "initial_amount": 500,
+      "sources": {
+        "experiment_complete": {
+          "floor_1": 100,
+          "floor_2": 200,
+          "floor_3": 400,
+          "floor_4": 800,
+          "floor_5": 1500
+        },
+        "daily_quest": {
+          "amount": 300
+        },
+        "achievements": {
+          "first_synergy": 500,
+          "all_skills_discovered": 2000,
+          "floor_5_clear": 3000
+        }
+      },
+      "sinks": {
+        "permanent_upgrade": {
+          "base_cost": 200,
+          "level_multiplier": 1.5
+        },
+        "witch_levelup": {
+          "base_cost": 500,
+          "level_multiplier": 2.0
+        },
+        "recipe_unlock": {
+          "common": 100,
+          "rare": 300,
+          "epic": 1000,
+          "legendary": 3000
+        }
+      }
+    },
+    "crystals": {
+      "display_name": "크리스탈",
+      "icon": "assets/icons/crystal.png",
+      "initial_amount": 200,
+      "iap_packages": [
+        { "crystals": 100, "price_usd": 0.99 },
+        { "crystals": 500, "price_usd": 4.99 },
+        { "crystals": 1200, "price_usd": 9.99 },
+        { "crystals": 3000, "price_usd": 19.99 }
+      ],
+      "uses": {
+        "skill_reroll": 50,
+        "extra_skill_slot": 200,
+        "continue_run": 100,
+        "special_recipe": 500
+      }
+    },
+    "materials": {
+      "display_name": "실험 재료",
+      "icon": "assets/icons/material.png",
+      "types": [
+        "fire_essence",
+        "ice_shard",
+        "lightning_core",
+        "dark_matter",
+        "light_dust"
+      ],
+      "sources": {
+        "puzzle_match": "per_combo",
+        "bonus_stage": "random_type"
+      }
+    }
+  },
+  "skill_shop": {
+    "reroll_cost": {
+      "currency": "crystals",
+      "amount": 50
+    },
+    "guaranteed_rare_cost": {
+      "currency": "crystals",
+      "amount": 150
+    }
+  },
+  "permanent_upgrades": {
+    "categories": [
+      {
+        "name": "스킬 강화",
+        "upgrades": [
+          { "id": "skill_damage", "max_level": 10, "base_cost": 200 },
+          { "id": "skill_cooldown", "max_level": 5, "base_cost": 300 },
+          { "id": "skill_effect", "max_level": 5, "base_cost": 400 }
+        ]
+      },
+      {
+        "name": "퍼즐 보너스",
+        "upgrades": [
+          { "id": "combo_bonus", "max_level": 10, "base_cost": 150 },
+          { "id": "material_drop", "max_level": 10, "base_cost": 200 },
+          { "id": "special_tile", "max_level": 5, "base_cost": 500 }
+        ]
+      },
+      {
+        "name": "시너지 강화",
+        "upgrades": [
+          { "id": "synergy_power", "max_level": 5, "base_cost": 800 },
+          { "id": "synergy_slots", "max_level": 3, "base_cost": 1000 }
+        ]
+      }
+    ]
+  }
+}

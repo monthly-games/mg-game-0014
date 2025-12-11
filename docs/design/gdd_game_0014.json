@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "game_id": "game_0014",
+    "code_name": "MG-0014",
+    "title_kr": "마녀의 연구소: 실험형 퍼즐",
+    "title_en": "Witch's Lab: Experimental Puzzle",
+    "version": "0.1.0",
+    "last_updated": "2025-07-01"
+  },
+  "overview": {
+    "genre_tags": ["puzzle", "skill_build", "roguelike"],
+    "target_audience": {
+      "age": "15-35",
+      "region": ["KR", "SEA", "Global"],
+      "play_style": "strategic_casual"
+    },
+    "core_loop": "퍼즐을 풀며 스킬을 획득하고 시너지를 조합하여 실험을 완성한다",
+    "unique_selling_point": "매 판마다 다른 스킬 조합과 시너지 발견의 재미",
+    "year2_role": "스킬/시너지 시스템 공통화"
+  },
+  "gameplay": {
+    "core_mechanics": [
+      {
+        "name": "퍼즐 매칭",
+        "description": "특정 패턴을 매칭하여 마법 재료 수집"
+      },
+      {
+        "name": "스킬 빌드",
+        "description": "실험 중 랜덤하게 제시되는 스킬을 선택하여 빌드 구성"
+      },
+      {
+        "name": "시너지 시스템",
+        "description": "특정 스킬 조합으로 강력한 시너지 효과 발동"
+      },
+      {
+        "name": "로그라이크 진행",
+        "description": "실패 시 처음부터, 성공 시 영구 업그레이드 획득"
+      }
+    ],
+    "progression": {
+      "type": "roguelike_run",
+      "description": "실험을 반복하며 영구 업그레이드 해금"
+    },
+    "session_length": "15-20분"
+  },
+  "economy": {
+    "currencies": [
+      {
+        "name": "에센스",
+        "type": "soft",
+        "sources": ["실험 완료", "일일 퀘스트", "업적"],
+        "sinks": ["영구 업그레이드", "마녀 레벨업", "레시피 해금"]
+      },
+      {
+        "name": "크리스탈",
+        "type": "hard",
+        "sources": ["인앱 구매", "첫 클리어 보상", "이벤트"],
+        "sinks": ["스킬 재선택", "추가 슬롯", "특별 레시피"]
+      },
+      {
+        "name": "실험 재료",
+        "type": "resource",
+        "sources": ["퍼즐 매칭", "보너스 스테이지"],
+        "sinks": ["스킬 강화", "포션 제작"]
+      }
+    ],
+    "monetization": {
+      "model": "F2P + IAP",
+      "iap_items": ["크리스탈 패키지", "스타터 팩", "마녀 스킨"],
+      "ad_placements": ["보상형 광고 (재료 추가, 재선택)"]
+    }
+  },
+  "skill_system": {
+    "skill_categories": ["공격", "방어", "유틸", "특수"],
+    "skill_tiers": ["common", "rare", "epic", "legendary"],
+    "synergy_types": [
+      {
+        "name": "화염 마스터",
+        "required_skills": ["화염구", "불기둥", "폭발"],
+        "effect": "화염 스킬 데미지 +50%"
+      },
+      {
+        "name": "빙결 술사",
+        "required_skills": ["냉기", "얼음창", "블리자드"],
+        "effect": "적 이동 속도 -70%, 빙결 확률 +30%"
+      },
+      {
+        "name": "연쇄 반응",
+        "required_skills": ["전기충격", "연쇄번개", "과부하"],
+        "effect": "모든 스킬이 인접 적 2명에게 추가 적용"
+      }
+    ]
+  },
+  "technical": {
+    "platform": ["Android", "iOS"],
+    "engine": "Flutter + Flame",
+    "backend": "Firebase",
+    "analytics": "GA4 + BigQuery"
+  }
+}
