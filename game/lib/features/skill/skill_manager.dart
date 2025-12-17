@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'dart:math';
 import 'skill_data.dart';
 import '../puzzle/grid_manager.dart';
 import '../player/player_data.dart';
+import '../synergy/synergy_manager.dart';
 
 /// Manages player skills, cooldowns, and skill usage
 class SkillManager extends ChangeNotifier {
@@ -16,6 +18,9 @@ class SkillManager extends ChangeNotifier {
 
   // Cooldown tracking (skill id -> remaining time)
   final Map<String, double> _cooldowns = {};
+
+  // Synergy manager reference
+  SynergyManager? synergyManager;
 
   /// Add skill to acquired skills
   void acquireSkill(SkillData skill) {
@@ -38,6 +43,7 @@ class SkillManager extends ChangeNotifier {
     if (_activeSkills.length >= maxActiveSkills) return false;
 
     _activeSkills.add(skill);
+    _updateSynergies();
     notifyListeners();
     return true;
   }
@@ -45,7 +51,13 @@ class SkillManager extends ChangeNotifier {
   /// Unequip skill from active slot
   void unequipSkill(SkillData skill) {
     _activeSkills.remove(skill);
+    _updateSynergies();
     notifyListeners();
+  }
+
+  /// Update synergies when skills change
+  void _updateSynergies() {
+    synergyManager?.updateSynergies(_activeSkills);
   }
 
   /// Check if skill can be used
@@ -53,9 +65,10 @@ class SkillManager extends ChangeNotifier {
     // Check if skill is active
     if (!_activeSkills.contains(skill)) return false;
 
-    // Check mana
+    // Check mana (with synergy reduction)
+    final actualCost = synergyManager?.applyManaCostReduction(skill, skill.manaCost) ?? skill.manaCost;
     if (!player.mana.containsKey(skill.element)) return false;
-    if (player.mana[skill.element]! < skill.manaCost) return false;
+    if (player.mana[skill.element]! < actualCost) return false;
 
     // Check cooldown
     if (_cooldowns.containsKey(skill.id)) {
@@ -74,30 +87,61 @@ class SkillManager extends ChangeNotifier {
   }) {
     if (!canUseSkill(skill, player)) return;
 
+    // Apply synergy bonuses
+    final actualCost = synergyManager?.applyManaCostReduction(skill, skill.manaCost) ?? skill.manaCost;
+    final actualCooldown = synergyManager?.applyCooldownReduction(skill, skill.cooldown) ?? skill.cooldown;
+    final critChance = synergyManager?.getCriticalChance() ?? 0.0;
+    final lifeSteal = synergyManager?.getLifeSteal() ?? 0.0;
+
     // Consume mana
-    player.consumeMana(skill.element, skill.manaCost);
+    player.consumeMana(skill.element, actualCost);
+
+    // Calculate damage/heal with synergy bonuses
+    double effectValue = skill.baseValue;
+
+    // Apply damage bonus from synergies
+    if (skill.type == SkillType.damage || skill.type == SkillType.aoe || skill.type == SkillType.debuff) {
+      effectValue = synergyManager?.applyDamageBonus(skill, effectValue) ?? effectValue;
+    }
+
+    // Apply critical hit
+    final rand = Random();
+    bool isCrit = rand.nextDouble() < critChance;
+    if (isCrit && (skill.type == SkillType.damage || skill.type == SkillType.aoe)) {
+      effectValue *= 2.0;
+      print('💥 CRITICAL HIT! ${effectValue.toInt()} damage');
+    }
 
     // Apply skill effect
     switch (skill.type) {
       case SkillType.damage:
       case SkillType.aoe:
-        if (onDamage != null) onDamage(skill.baseValue);
+        if (onDamage != null) onDamage(effectValue);
+
+        // Apply life steal
+        if (lifeSteal > 0) {
+          final healAmount = effectValue * lifeSteal;
+          player.takeDamage(-healAmount);
+          print('💉 Life steal: ${healAmount.toInt()} HP');
+        }
         break;
       case SkillType.heal:
-        if (onHeal != null) onHeal(skill.baseValue);
-        player.takeDamage(-skill.baseValue); // Negative damage = heal
+        // Apply heal synergy bonus
+        effectValue = synergyManager?.applyDamageBonus(skill, effectValue) ?? effectValue;
+        if (onHeal != null) onHeal(effectValue);
+        player.takeDamage(-effectValue); // Negative damage = heal
         break;
       case SkillType.buff:
         // TODO: Apply buff effects
         break;
       case SkillType.debuff:
-        if (onDamage != null) onDamage(skill.baseValue * 0.5);
+        if (onDamage != null) onDamage(effectValue * 0.5);
         // TODO: Apply debuff effects
         break;
     }
 
-    // Start cooldown
-    _cooldowns[skill.id] = skill.cooldown;
+    // Start cooldown (with synergy reduction)
+    _cooldowns[skill.id] = actualCooldown;
 
     notifyListeners();
   }

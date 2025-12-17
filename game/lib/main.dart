@@ -7,6 +7,8 @@ import 'package:mg_common_game/core/ui/theme/app_colors.dart';
 import 'game/lab_game.dart';
 import 'features/puzzle/grid_manager.dart';
 import 'features/skill/skill_manager.dart';
+import 'features/skill/skill_data.dart';
+import 'features/synergy/synergy_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +19,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => GridManager()),
         ChangeNotifierProvider(create: (_) => SkillManager()..initializeStarter()),
+        ChangeNotifierProvider(create: (_) => SynergyManager()),
       ],
       child: const MaterialApp(title: 'Witchs Lab', home: LabScreen()),
     ),
@@ -48,13 +51,54 @@ class _LabScreenState extends State<LabScreen> {
   @override
   Widget build(BuildContext context) {
     final skillManager = Provider.of<SkillManager>(context);
+    final synergyManager = Provider.of<SynergyManager>(context);
+
+    // Connect managers
     _game.skillManager = skillManager;
+    skillManager.synergyManager = synergyManager;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
           GameWidget(game: _game),
+          // Synergy display at top
+          if (synergyManager.activeSynergies.isNotEmpty)
+            Positioned(
+              top: 60,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final synergy in synergyManager.activeSynergies)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white, width: 1),
+                        ),
+                        child: Text(
+                          synergyManager.getSynergyInfo(synergy),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           // Skill Bar at bottom
           Positioned(
             bottom: 0,
