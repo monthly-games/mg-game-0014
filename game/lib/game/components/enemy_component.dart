@@ -2,11 +2,12 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
 class EnemyComponent extends PositionComponent {
-  double hp = 50.0;
-  final double maxHp = 50.0;
+  late double hp;
+  final double maxHp;
+  final double damage;
 
   double attackTimer = 0.0;
-  final double attackInterval = 5.0; // Attack every 5s
+  final double attackInterval;
 
   final Function(double) onAttack;
   final VoidCallback onDeath;
@@ -15,7 +16,12 @@ class EnemyComponent extends PositionComponent {
     required this.onAttack,
     required this.onDeath,
     required Vector2 position,
-  }) : super(position: position, size: Vector2(80, 80), anchor: Anchor.center);
+    this.maxHp = 50.0,
+    this.damage = 10.0,
+    this.attackInterval = 5.0,
+  }) : super(position: position, size: Vector2(80, 80), anchor: Anchor.center) {
+    hp = maxHp;
+  }
 
   @override
   void update(double dt) {
@@ -25,7 +31,7 @@ class EnemyComponent extends PositionComponent {
     attackTimer += dt;
     if (attackTimer >= attackInterval) {
       attackTimer = 0;
-      onAttack(10.0); // Deal 10 damage
+      onAttack(damage);
     }
   }
 

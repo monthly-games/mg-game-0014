@@ -9,6 +9,10 @@ import 'features/puzzle/grid_manager.dart';
 import 'features/skill/skill_manager.dart';
 import 'features/skill/skill_data.dart';
 import 'features/synergy/synergy_manager.dart';
+import 'features/stage/stage_manager.dart';
+import 'features/player/player_data.dart';
+import 'screens/reward_screen.dart';
+import 'screens/game_over_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +24,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => GridManager()),
         ChangeNotifierProvider(create: (_) => SkillManager()..initializeStarter()),
         ChangeNotifierProvider(create: (_) => SynergyManager()),
+        ChangeNotifierProvider(create: (_) => StageManager()),
       ],
       child: const MaterialApp(title: 'Witchs Lab', home: LabScreen()),
     ),
@@ -52,10 +57,53 @@ class _LabScreenState extends State<LabScreen> {
   Widget build(BuildContext context) {
     final skillManager = Provider.of<SkillManager>(context);
     final synergyManager = Provider.of<SynergyManager>(context);
+    final stageManager = Provider.of<StageManager>(context);
 
     // Connect managers
     _game.skillManager = skillManager;
+    _game.stageManager = stageManager;
     skillManager.synergyManager = synergyManager;
+
+    // Show reward screen
+    if (stageManager.isRewarding) {
+      final availableSkills = Skills.getAllSkills()
+          .where((s) => !skillManager.acquiredSkills.contains(s))
+          .toList();
+
+      final rewards = RewardGenerator.generateRewards(
+        stageManager.currentStage,
+        availableSkills,
+      );
+
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: RewardScreen(
+          rewards: rewards,
+          currentStage: stageManager.currentStage,
+          onSelect: (reward) {
+            _handleReward(reward, skillManager);
+            stageManager.proceedToNextStage();
+            _game.respawnEnemy();
+          },
+        ),
+      );
+    }
+
+    // Show game over screen
+    if (stageManager.isDefeat) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: GameOverScreen(
+          finalStage: stageManager.currentStage,
+          totalKills: stageManager.totalKills,
+          onRestart: () {
+            stageManager.resetGame();
+            skillManager.initializeStarter();
+            _game.resetGame();
+          },
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -120,6 +168,26 @@ class _LabScreenState extends State<LabScreen> {
         ],
       ),
     );
+  }
+
+  void _handleReward(RewardOption reward, SkillManager skillManager) {
+    switch (reward.type) {
+      case RewardType.skill:
+        final skill = reward.value as SkillData;
+        skillManager.acquireSkill(skill);
+        print('📚 Acquired skill: ${skill.name}');
+        break;
+      case RewardType.heal:
+        final healAmount = reward.value as int;
+        _game.playerData.takeDamage(-healAmount.toDouble());
+        print('💚 Healed $healAmount HP');
+        break;
+      case RewardType.maxHpUp:
+        final hpIncrease = reward.value as int;
+        _game.playerData.increaseMaxHp(hpIncrease.toDouble());
+        print('❤️ Max HP increased by $hpIncrease');
+        break;
+    }
   }
 
   Widget _buildSkillButton(SkillData skill, SkillManager skillManager) {

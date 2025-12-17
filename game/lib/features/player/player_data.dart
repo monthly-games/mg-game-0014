@@ -3,7 +3,7 @@ import '../puzzle/grid_manager.dart';
 
 class PlayerData extends ChangeNotifier {
   double hp = 100.0;
-  final double maxHp = 100.0;
+  double maxHp = 100.0;
 
   // Mana for each element (0 to 100)
   Map<TileType, double> mana = {
@@ -16,6 +16,24 @@ class PlayerData extends ChangeNotifier {
 
   void takeDamage(double amount) {
     hp = (hp - amount).clamp(0, maxHp);
+    notifyListeners();
+  }
+
+  void increaseMaxHp(double amount) {
+    maxHp += amount;
+    hp += amount; // Also heal
+    notifyListeners();
+  }
+
+  void reset() {
+    hp = 100.0;
+    maxHp = 100.0;
+    mana = {
+      TileType.fire: 0,
+      TileType.water: 0,
+      TileType.earth: 0,
+      TileType.poison: 0,
+    };
     notifyListeners();
   }
 

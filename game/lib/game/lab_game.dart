@@ -11,6 +11,7 @@ import '../features/puzzle/tile_component.dart';
 import '../features/player/player_data.dart';
 import '../features/skill/skill_manager.dart';
 import '../features/skill/skill_data.dart';
+import '../features/stage/stage_manager.dart';
 import 'components/enemy_component.dart';
 
 class LabGame extends FlameGame {
@@ -21,6 +22,7 @@ class LabGame extends FlameGame {
   // Roguelike Elements
   final PlayerData playerData = PlayerData();
   SkillManager? skillManager;
+  StageManager? stageManager;
   EnemyComponent? _currentEnemy;
   EnemyComponent? get currentEnemy => _currentEnemy;
 
@@ -30,11 +32,27 @@ class LabGame extends FlameGame {
   // HUD
   late TextComponent _playerHpText;
   late TextComponent _manaText;
+  late TextComponent _stageText;
 
   @override
   Future<void> onLoad() async {
     _spawnGrid();
     _spawnEnemy();
+
+    // Stage display
+    _stageText = TextComponent(
+      text: "Stage 1",
+      position: Vector2(size.x / 2, 20),
+      anchor: Anchor.topCenter,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.yellow,
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    add(_stageText);
 
     _playerHpText = TextComponent(
       text: "HP: 100",
@@ -55,13 +73,19 @@ class LabGame extends FlameGame {
     add(_manaText);
 
     playerData.addListener(() {
-      _playerHpText.text = "HP: ${playerData.hp.toInt()}";
+      _playerHpText.text = "HP: ${playerData.hp.toInt()}/${playerData.maxHp.toInt()}";
       _manaText.text =
           "Mana: 🔥${playerData.mana[TileType.fire]!.toInt()} "
           "💧${playerData.mana[TileType.water]!.toInt()} "
           "☠${playerData.mana[TileType.poison]!.toInt()} "
           "🌿${playerData.mana[TileType.earth]!.toInt()}";
     });
+  }
+
+  void updateStageDisplay() {
+    final stage = stageManager?.currentStage ?? 1;
+    final emoji = stageManager?.getStageColor() ?? '🟢';
+    _stageText.text = "$emoji Stage $stage";
   }
 
   @override
@@ -73,22 +97,47 @@ class LabGame extends FlameGame {
   void _spawnEnemy() {
     if (_currentEnemy != null) _currentEnemy!.removeFromParent();
 
+    final stage = stageManager?.currentStage ?? 1;
+    final enemyHp = stageManager?.getEnemyHp(stage) ?? 50.0;
+    final enemyDmg = stageManager?.getEnemyDamage(stage) ?? 10.0;
+    final attackInterval = stageManager?.getEnemyAttackSpeed(stage) ?? 5.0;
+
     _currentEnemy = EnemyComponent(
       position: Vector2(size.x / 2, 80), // Top Center
+      maxHp: enemyHp,
+      damage: enemyDmg,
+      attackInterval: attackInterval,
       onAttack: (dmg) {
         playerData.takeDamage(dmg);
         print("Player Stats: HP ${playerData.hp}/${playerData.maxHp}");
         if (playerData.isDead()) {
-          print("GAME OVER");
-          // TODO: Pause or Reset
+          stageManager?.onPlayerDeath();
         }
       },
       onDeath: () {
         print("Enemy Slain!");
-        Future.delayed(const Duration(seconds: 1), _spawnEnemy);
+        stageManager?.onEnemyDefeated();
+
+        // Show reward screen after delay
+        Future.delayed(const Duration(milliseconds: 500), () {
+          stageManager?.showRewardScreen();
+        });
       },
     );
     add(_currentEnemy!);
+  }
+
+  /// Respawn enemy for next stage
+  void respawnEnemy() {
+    updateStageDisplay();
+    _spawnEnemy();
+  }
+
+  /// Reset game for new run
+  void resetGame() {
+    playerData.reset();
+    updateStageDisplay();
+    _spawnEnemy();
   }
 
   void _spawnGrid() {
