@@ -12,7 +12,7 @@ import 'package:game/main.dart'; // Ensure package name is correct
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MaterialApp(home: LabScreen()));
+    await tester.pumpWidget(const WitchLabApp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
