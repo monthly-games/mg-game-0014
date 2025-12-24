@@ -7,10 +7,10 @@ class TutorialOverlay extends StatelessWidget {
   final TutorialManager tutorialManager;
 
   const TutorialOverlay({
-    Key? key,
+    super.key,
     required this.game,
     required this.tutorialManager,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

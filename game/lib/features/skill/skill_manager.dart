@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'dart:math';
 import 'skill_data.dart';
-import '../puzzle/grid_manager.dart';
 import '../player/player_data.dart';
 import '../synergy/synergy_manager.dart';
 

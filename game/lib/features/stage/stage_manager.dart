@@ -31,7 +31,7 @@ class StageManager extends ChangeNotifier {
   }
 
   double getEnemyAttackSpeed(int stage) {
-    final baseInterval = 5.0;
+    const baseInterval = 5.0;
     final reduction = (stage - 1) * 0.2;
     return (baseInterval - reduction).clamp(
       2.0,

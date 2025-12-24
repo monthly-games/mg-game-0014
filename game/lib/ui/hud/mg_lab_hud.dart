@@ -36,7 +36,7 @@ class MGLabHud extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.all(MGSpacing.sm),
+        padding: const EdgeInsets.all(MGSpacing.sm),
         child: Column(
           children: [
             // 상단 HUD
@@ -48,10 +48,10 @@ class MGLabHud extends StatelessWidget {
                   flex: 2,
                   child: _buildStatusBars(),
                 ),
-                SizedBox(width: MGSpacing.sm),
+                const SizedBox(width: MGSpacing.sm),
                 // 중앙: 스테이지/웨이브 정보
                 _buildStageInfo(),
-                SizedBox(width: MGSpacing.sm),
+                const SizedBox(width: MGSpacing.sm),
                 // 오른쪽: 점수 & 일시정지
                 _buildScoreAndPause(),
               ],
@@ -67,7 +67,7 @@ class MGLabHud extends StatelessWidget {
 
   Widget _buildStatusBars() {
     return Container(
-      padding: EdgeInsets.all(MGSpacing.xs),
+      padding: const EdgeInsets.all(MGSpacing.xs),
       decoration: BoxDecoration(
         color: MGColors.surface.withOpacity(0.8),
         borderRadius: BorderRadius.circular(MGSpacing.sm),
@@ -79,8 +79,8 @@ class MGLabHud extends StatelessWidget {
           // HP Bar
           Row(
             children: [
-              Icon(Icons.favorite, color: Colors.red, size: 16),
-              SizedBox(width: MGSpacing.xs),
+              const Icon(Icons.favorite, color: Colors.red, size: 16),
+              const SizedBox(width: MGSpacing.xs),
               Expanded(
                 child: MGLinearProgress(
                   value: hp / maxHp,
@@ -89,7 +89,7 @@ class MGLabHud extends StatelessWidget {
                   progressColor: Colors.red,
                 ),
               ),
-              SizedBox(width: MGSpacing.xs),
+              const SizedBox(width: MGSpacing.xs),
               Text(
                 '$hp',
                 style: MGTextStyles.caption.copyWith(
@@ -99,12 +99,12 @@ class MGLabHud extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: MGSpacing.xs),
+          const SizedBox(height: MGSpacing.xs),
           // Energy Bar
           Row(
             children: [
-              Icon(Icons.bolt, color: Colors.yellow, size: 16),
-              SizedBox(width: MGSpacing.xs),
+              const Icon(Icons.bolt, color: Colors.yellow, size: 16),
+              const SizedBox(width: MGSpacing.xs),
               Expanded(
                 child: MGLinearProgress(
                   value: energy / maxEnergy,
@@ -113,7 +113,7 @@ class MGLabHud extends StatelessWidget {
                   progressColor: Colors.yellow,
                 ),
               ),
-              SizedBox(width: MGSpacing.xs),
+              const SizedBox(width: MGSpacing.xs),
               Text(
                 '$energy',
                 style: MGTextStyles.caption.copyWith(
@@ -129,7 +129,7 @@ class MGLabHud extends StatelessWidget {
 
   Widget _buildStageInfo() {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: MGSpacing.md,
         vertical: MGSpacing.xs,
       ),
@@ -165,7 +165,7 @@ class MGLabHud extends StatelessWidget {
       children: [
         // 점수
         Container(
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: MGSpacing.sm,
             vertical: MGSpacing.xs,
           ),
@@ -177,7 +177,7 @@ class MGLabHud extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.star, color: MGColors.resourceGold, size: 16),
-              SizedBox(width: MGSpacing.xs),
+              const SizedBox(width: MGSpacing.xs),
               Text(
                 '$score',
                 style: MGTextStyles.buttonMedium.copyWith(
@@ -187,7 +187,7 @@ class MGLabHud extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: MGSpacing.xs),
+        const SizedBox(width: MGSpacing.xs),
         // 일시정지
         if (onPause != null)
           MGIconButton(
@@ -201,7 +201,7 @@ class MGLabHud extends StatelessWidget {
 
   Widget _buildSkillBar() {
     return Container(
-      padding: EdgeInsets.all(MGSpacing.sm),
+      padding: const EdgeInsets.all(MGSpacing.sm),
       decoration: BoxDecoration(
         color: MGColors.surface.withOpacity(0.9),
         borderRadius: BorderRadius.circular(MGSpacing.sm),
