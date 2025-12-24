@@ -270,21 +270,21 @@ int essenceReward(int stageReached, bool bossKilled) {
 ## 6. 프로덕션 체크리스트
 
 ### 핵심 기능
-- [ ] 퍼즐 매칭 시스템
-- [ ] 스킬 빌드 시스템
-- [ ] 시너지 시스템
-- [ ] 로그라이크 런 구조
-- [ ] 영구 업그레이드
+- [x] 퍼즐 매칭 시스템 (GridManager: tile matching)
+- [x] 스킬 빌드 시스템 (SkillManager: acquire/equip, 최대 6개 슬롯, 쿨다운)
+- [x] 시너지 시스템 (SynergyManager: 8가지 효과, 데미지/마나/쿨다운/크리티컬/흡혈 등)
+- [x] 로그라이크 런 구조 (DraftManager: 3선지 스킬 선택)
+- [x] 영구 업그레이드 (MetaManager: ResearchPoints, HP/마나 보너스)
 
 ### 콘텐츠
-- [ ] 50+ 스킬
-- [ ] 15+ 시너지
+- [ ] 50+ 스킬 (현재 Skills.getAllSkills())
+- [x] 8+ 시너지 (damageBoost/manaCostReduction/cooldownReduction/criticalChance/lifeSteal/areaExpansion/dotAmplify/shieldOnKill)
 - [ ] 5+ 마녀 캐릭터
 - [ ] 10 실험 스테이지
-- [ ] 튜토리얼
+- [x] 튜토리얼 (TutorialOverlay/TutorialManager)
 
 ### 메타 시스템
-- [ ] 에센스/업그레이드
+- [x] 에센스/업그레이드 (MetaManager: researchPoints, node purchase)
 - [ ] 일일/주간 퀘스트
 - [ ] 도전과제
 - [ ] 일일 챌린지
