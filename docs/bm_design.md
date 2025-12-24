@@ -1,7 +1,13 @@
-# 마녀의 연구소: 실험형 퍼즐 - BM 설계 문서
+﻿# 마녀의 연구소: 실험형 퍼즐 - BM 설계 문서
 
 > game_id: game_0014
 > repo: mg-game-0014
+> title_kr: 마녀의 연구소: 실험형 퍼즐
+> title_en: Witch's Lab: Experimental Puzzle
+> genre_tags: puzzle, skill_build, roguelike
+> doc_type: bm_design
+> source_of_truth: docs/design/gdd_game_0014.json
+> last_updated: 2025-12-19
 
 ---
 

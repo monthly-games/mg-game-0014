@@ -16,7 +16,7 @@ class RewardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.9),
+      color: Colors.black.withValues(alpha: 0.9),
       child: Center(
         child: Container(
           padding: const EdgeInsets.all(24),
@@ -36,18 +36,17 @@ class RewardScreen extends StatelessWidget {
               const SizedBox(height: 8),
               const Text(
                 '보상을 선택하세요',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 18),
               ),
               const SizedBox(height: 32),
 
               // Reward cards
-              ...rewards.map((reward) => Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: _buildRewardCard(context, reward),
-                  )),
+              ...rewards.map(
+                (reward) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildRewardCard(context, reward),
+                ),
+              ),
             ],
           ),
         ),
@@ -79,7 +78,7 @@ class RewardScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: cardColor.withOpacity(0.2),
+          color: cardColor.withValues(alpha: 0.2),
           border: Border.all(color: cardColor, width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -113,21 +112,14 @@ class RewardScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     reward.description,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
             ),
 
             // Arrow
-            Icon(
-              Icons.arrow_forward_ios,
-              color: cardColor,
-              size: 24,
-            ),
+            Icon(Icons.arrow_forward_ios, color: cardColor, size: 24),
           ],
         ),
       ),

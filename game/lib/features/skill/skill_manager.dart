@@ -66,7 +66,9 @@ class SkillManager extends ChangeNotifier {
     if (!_activeSkills.contains(skill)) return false;
 
     // Check mana (with synergy reduction)
-    final actualCost = synergyManager?.applyManaCostReduction(skill, skill.manaCost) ?? skill.manaCost;
+    final actualCost =
+        synergyManager?.applyManaCostReduction(skill, skill.manaCost) ??
+        skill.manaCost;
     if (!player.mana.containsKey(skill.element)) return false;
     if (player.mana[skill.element]! < actualCost) return false;
 
@@ -88,8 +90,12 @@ class SkillManager extends ChangeNotifier {
     if (!canUseSkill(skill, player)) return;
 
     // Apply synergy bonuses
-    final actualCost = synergyManager?.applyManaCostReduction(skill, skill.manaCost) ?? skill.manaCost;
-    final actualCooldown = synergyManager?.applyCooldownReduction(skill, skill.cooldown) ?? skill.cooldown;
+    final actualCost =
+        synergyManager?.applyManaCostReduction(skill, skill.manaCost) ??
+        skill.manaCost;
+    final actualCooldown =
+        synergyManager?.applyCooldownReduction(skill, skill.cooldown) ??
+        skill.cooldown;
     final critChance = synergyManager?.getCriticalChance() ?? 0.0;
     final lifeSteal = synergyManager?.getLifeSteal() ?? 0.0;
 
@@ -100,14 +106,18 @@ class SkillManager extends ChangeNotifier {
     double effectValue = skill.baseValue;
 
     // Apply damage bonus from synergies
-    if (skill.type == SkillType.damage || skill.type == SkillType.aoe || skill.type == SkillType.debuff) {
-      effectValue = synergyManager?.applyDamageBonus(skill, effectValue) ?? effectValue;
+    if (skill.type == SkillType.damage ||
+        skill.type == SkillType.aoe ||
+        skill.type == SkillType.debuff) {
+      effectValue =
+          synergyManager?.applyDamageBonus(skill, effectValue) ?? effectValue;
     }
 
     // Apply critical hit
     final rand = Random();
     bool isCrit = rand.nextDouble() < critChance;
-    if (isCrit && (skill.type == SkillType.damage || skill.type == SkillType.aoe)) {
+    if (isCrit &&
+        (skill.type == SkillType.damage || skill.type == SkillType.aoe)) {
       effectValue *= 2.0;
       print('💥 CRITICAL HIT! ${effectValue.toInt()} damage');
     }
@@ -127,7 +137,8 @@ class SkillManager extends ChangeNotifier {
         break;
       case SkillType.heal:
         // Apply heal synergy bonus
-        effectValue = synergyManager?.applyDamageBonus(skill, effectValue) ?? effectValue;
+        effectValue =
+            synergyManager?.applyDamageBonus(skill, effectValue) ?? effectValue;
         if (onHeal != null) onHeal(effectValue);
         player.takeDamage(-effectValue); // Negative damage = heal
         break;
@@ -196,6 +207,54 @@ class SkillManager extends ChangeNotifier {
   /// Reset all cooldowns
   void resetCooldowns() {
     _cooldowns.clear();
+    notifyListeners();
+  }
+
+  // Persistence
+  Map<String, dynamic> toJson() {
+    return {
+      'acquiredSkills': _acquiredSkills.map((s) => s.id).toList(),
+      'activeSkills': _activeSkills.map((s) => s.id).toList(),
+      'cooldowns': _cooldowns,
+    };
+  }
+
+  void load(Map<String, dynamic> json) {
+    _acquiredSkills.clear();
+    _activeSkills.clear();
+    _cooldowns.clear();
+
+    final acquiredIds = List<String>.from(json['acquiredSkills'] ?? []);
+    final activeIds = List<String>.from(json['activeSkills'] ?? []);
+    final savedCooldowns = Map<String, dynamic>.from(json['cooldowns'] ?? {});
+
+    // Restore acquired skills
+    for (final id in acquiredIds) {
+      final skill = Skills.getAllSkills().firstWhere(
+        (s) => s.id == id,
+        orElse: () => Skills.fireball, // Safety fallback
+      );
+      if (!_acquiredSkills.contains(skill)) {
+        _acquiredSkills.add(skill);
+      }
+    }
+
+    // Restore active skills
+    for (final id in activeIds) {
+      final skill = Skills.getAllSkills().firstWhere(
+        (s) => s.id == id,
+        orElse: () => Skills.fireball, // Safety fallback
+      );
+      if (_acquiredSkills.contains(skill) && !_activeSkills.contains(skill)) {
+        _activeSkills.add(skill);
+      }
+    }
+
+    // Restore cooldowns
+    savedCooldowns.forEach((key, value) {
+      _cooldowns[key] = (value as num).toDouble();
+    });
+
     notifyListeners();
   }
 }

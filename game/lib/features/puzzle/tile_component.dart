@@ -3,7 +3,7 @@ import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 import 'grid_manager.dart';
 
-class TileComponent extends PositionComponent with TapCallbacks {
+class TileComponent extends PositionComponent with TapCallbacks, HasGameRef {
   final int row;
   final int col;
   final TileType type;
@@ -21,35 +21,50 @@ class TileComponent extends PositionComponent with TapCallbacks {
     this.isSelected = false,
   }) : super(position: position, size: size);
 
+  Sprite? _sprite;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    if (type != TileType.empty) {
+      try {
+        _sprite = await gameRef.loadSprite('tile_${type.name}.png');
+      } catch (e) {
+        print('Failed to load tile sprite for $type: $e');
+      }
+    }
+  }
+
   @override
   void render(Canvas canvas) {
-    var paint = Paint()..color = _getColor(type);
-
-    // Draw rounded rect
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(2, 2, width - 4, height - 4),
-        const Radius.circular(8),
-      ),
-      paint,
-    );
+    if (_sprite != null) {
+      _sprite!.render(canvas, size: size);
+    } else {
+      var paint = Paint()..color = _getColor(type);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(2, 2, width - 4, height - 4),
+          const Radius.circular(8),
+        ),
+        paint,
+      );
+    }
 
     // Draw Border
-    final borderColor = isSelected
-        ? Colors.yellow
-        : Colors.white.withOpacity(0.5);
-    final borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = isSelected ? 4 : 2;
+    if (isSelected) {
+      final borderPaint = Paint()
+        ..color = Colors.yellow
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4;
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(2, 2, width - 4, height - 4),
-        const Radius.circular(8),
-      ),
-      borderPaint,
-    );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(2, 2, width - 4, height - 4),
+          const Radius.circular(8),
+        ),
+        borderPaint,
+      );
+    }
   }
 
   Color _getColor(TileType type) {

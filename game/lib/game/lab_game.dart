@@ -5,14 +5,20 @@ import 'package:get_it/get_it.dart';
 import 'package:mg_common_game/core/audio/audio_manager.dart';
 import 'package:mg_common_game/core/ui/theme/app_colors.dart';
 import 'dart:math';
-import 'components/simple_particle.dart';
+import 'components/particle_factory.dart';
 import '../features/puzzle/grid_manager.dart';
 import '../features/puzzle/tile_component.dart';
 import '../features/player/player_data.dart';
 import '../features/skill/skill_manager.dart';
-import '../features/skill/skill_data.dart';
 import '../features/stage/stage_manager.dart';
 import 'components/enemy_component.dart';
+import 'components/skill_projectile.dart';
+import '../features/skill/skill_data.dart';
+import '../features/enemy/enemy_data.dart';
+import '../systems/run_save_manager.dart';
+import '../systems/tutorial_manager.dart';
+
+import 'package:mg_common_game/core/ui/components/floating_text_component.dart';
 
 class LabGame extends FlameGame {
   final GridManager gridManager = GridManager();
@@ -21,8 +27,8 @@ class LabGame extends FlameGame {
 
   // Roguelike Elements
   final PlayerData playerData = PlayerData();
-  SkillManager? skillManager;
-  StageManager? stageManager;
+  final SkillManager skillManager = SkillManager();
+  final StageManager stageManager = StageManager();
   EnemyComponent? _currentEnemy;
   EnemyComponent? get currentEnemy => _currentEnemy;
 
@@ -36,8 +42,19 @@ class LabGame extends FlameGame {
 
   @override
   Future<void> onLoad() async {
+    final audioManager = GetIt.I<AudioManager>();
+    audioManager.playBgm('bgm_lab.mp3', volume: 0.5);
+
+    skillManager.initializeStarter();
+
+    await _initPersistence(); // Load save if exists
+    await _initTutorial(); // Check tutorial status
+
+    stageManager.addListener(_onStageStateChanged);
+
     _spawnGrid();
     _spawnEnemy();
+    updateStageDisplay();
 
     // Stage display
     _stageText = TextComponent(
@@ -73,7 +90,8 @@ class LabGame extends FlameGame {
     add(_manaText);
 
     playerData.addListener(() {
-      _playerHpText.text = "HP: ${playerData.hp.toInt()}/${playerData.maxHp.toInt()}";
+      _playerHpText.text =
+          "HP: ${playerData.hp.toInt()}/${playerData.maxHp.toInt()}";
       _manaText.text =
           "Mana: 🔥${playerData.mana[TileType.fire]!.toInt()} "
           "💧${playerData.mana[TileType.water]!.toInt()} "
@@ -82,49 +100,69 @@ class LabGame extends FlameGame {
     });
   }
 
+  void _onStageStateChanged() {
+    if (stageManager.isPlaying) {
+      if (_currentEnemy == null || _currentEnemy!.isRemoved) {
+        respawnEnemy();
+      }
+    }
+  }
+
   void updateStageDisplay() {
-    final stage = stageManager?.currentStage ?? 1;
-    final emoji = stageManager?.getStageColor() ?? '🟢';
+    final stage = stageManager.currentStage;
+    final emoji = stageManager.getStageColor();
     _stageText.text = "$emoji Stage $stage";
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    skillManager?.updateCooldowns(dt);
+    skillManager.updateCooldowns(dt);
   }
 
   void _spawnEnemy() {
     if (_currentEnemy != null) _currentEnemy!.removeFromParent();
 
-    final stage = stageManager?.currentStage ?? 1;
-    final enemyHp = stageManager?.getEnemyHp(stage) ?? 50.0;
-    final enemyDmg = stageManager?.getEnemyDamage(stage) ?? 10.0;
-    final attackInterval = stageManager?.getEnemyAttackSpeed(stage) ?? 5.0;
+    final stage = stageManager.currentStage;
+    final enemyData = EnemyDatabase.getEnemyForStage(stage);
+
+    // Scale stats from database
+    final enemyHp =
+        enemyData.baseHp * pow(1.2, stage - 1); // 20% increase per stage
+    final enemyDmg = enemyData.baseDmg * pow(1.1, stage - 1); // 10% increase
+
+    print(
+      "Spawning ${enemyData.name} (HP: ${enemyHp.toInt()}, DMG: ${enemyDmg.toInt()})",
+    );
 
     _currentEnemy = EnemyComponent(
       position: Vector2(size.x / 2, 80), // Top Center
       maxHp: enemyHp,
       damage: enemyDmg,
-      attackInterval: attackInterval,
+      attackInterval: enemyData.attackInterval, // Use unique speed
       onAttack: (dmg) {
         playerData.takeDamage(dmg);
-        print("Player Stats: HP ${playerData.hp}/${playerData.maxHp}");
+        // print("Player Stats: HP ${playerData.hp}/${playerData.maxHp}");
         if (playerData.isDead()) {
-          stageManager?.onPlayerDeath();
+          _saveManager.clearSave();
+          stageManager.onPlayerDeath();
         }
       },
       onDeath: () {
         print("Enemy Slain!");
-        stageManager?.onEnemyDefeated();
+        stageManager.onEnemyDefeated();
 
         // Show reward screen after delay
         Future.delayed(const Duration(milliseconds: 500), () {
-          stageManager?.showRewardScreen();
+          stageManager.showRewardScreen();
         });
       },
     );
+    // scale logic...
     add(_currentEnemy!);
+
+    // Auto-save on new stage start (or end of previous)
+    _saveGame();
   }
 
   /// Respawn enemy for next stage
@@ -136,8 +174,36 @@ class LabGame extends FlameGame {
   /// Reset game for new run
   void resetGame() {
     playerData.reset();
-    updateStageDisplay();
-    _spawnEnemy();
+    stageManager.resetGame();
+    skillManager.resetCooldowns();
+    _saveManager.clearSave(); // Clear old save
+    _saveGame(); // Save new start
+  }
+
+  // Save/Load Logic
+  late final RunSaveManager _saveManager;
+
+  Future<void> _initPersistence() async {
+    _saveManager = RunSaveManager(
+      playerData: playerData,
+      stageManager: stageManager,
+      skillManager: skillManager,
+    );
+
+    if (await _saveManager.hasSave()) {
+      await _saveManager.loadRun();
+      // Sync UI and State
+      updateStageDisplay();
+      // If we loaded into a specific state, handle it?
+      // For now, loading assumes we are at start of a stage or similar.
+      // If we were mid-battle, enemy spawn needs to check loaded HP?
+      // Simplified: We spawn enemy based on stage.
+      // Ideally persistence saves enemy state too, but let's stick to Run persistence for now.
+    }
+  }
+
+  Future<void> _saveGame() async {
+    await _saveManager.saveRun();
   }
 
   void _spawnGrid() {
@@ -230,6 +296,17 @@ class LabGame extends FlameGame {
     }
   }
 
+  void spawnFloatingText(String text, Vector2 position, Color color) {
+    add(
+      FloatingTextComponent(
+        text: text,
+        position: position,
+        color: color,
+        fontSize: 24,
+      ),
+    );
+  }
+
   void _applyEffect(TileType type, int count) {
     if (_currentEnemy == null) return;
 
@@ -237,30 +314,56 @@ class LabGame extends FlameGame {
     double manaGain = count * 8.0; // 3 -> 24, 4 -> 32
 
     // Spawn Particles (Visual Feedback)
-    final rand = Random();
-    for (int i = 0; i < 10; i++) {
-      add(
-        SimpleParticle(
-          position:
-              Vector2(size.x / 2, size.y / 2) +
-              Vector2(
-                (rand.nextDouble() - 0.5) * 100,
-                (rand.nextDouble() - 0.5) * 100,
-              ),
-          velocity: Vector2(
-            (rand.nextDouble() - 0.5) * 200,
-            (rand.nextDouble() - 0.5) * 200,
-          ),
-          color: _getColor(type),
-        ),
-      );
-    }
+    add(
+      ParticleFactory.createMatchBurst(
+        position: Vector2(size.x / 2, size.y / 2),
+        color: _getColor(type),
+      ),
+    );
 
     // Gain mana based on tile type
     if (type != TileType.empty) {
       playerData.gainMana(type, manaGain);
-      print("Gained $manaGain $type mana. Current: ${playerData.mana[type]}");
+      spawnFloatingText(
+        '+${manaGain.toInt()}',
+        Vector2(size.x / 2, size.y / 2 + 50),
+        _getColor(type),
+      );
+      // print("Gained $manaGain $type mana. Current: ${playerData.mana[type]}");
     }
+  }
+
+  void spawnSkillEffect(SkillData skill) {
+    if (_currentEnemy == null) return;
+
+    add(
+      SkillProjectile(
+        type: skill.element,
+        startPosition: Vector2(
+          size.x / 2,
+          size.y - 100,
+        ), // Start from player area
+        targetPosition: _currentEnemy!.position,
+        onHit: () {
+          // Visual impact effect
+          add(
+            ParticleFactory.createSkillExplosion(
+              position: _currentEnemy!.position,
+              color: _getColor(skill.element),
+            ),
+          );
+
+          // Audio
+          try {
+            // scalable sfx based on element could go here
+            GetIt.I<AudioManager>().playSfx(
+              'explosion.wav',
+              pitch: 1.0 + Random().nextDouble() * 0.5,
+            );
+          } catch (_) {}
+        },
+      ),
+    );
   }
 
   Color _getColor(TileType type) {

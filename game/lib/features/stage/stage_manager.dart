@@ -22,7 +22,8 @@ class StageManager extends ChangeNotifier {
 
   // Enemy scaling
   double getEnemyHp(int stage) {
-    return 50.0 + (stage - 1) * 15.0; // 50, 65, 80, 95...
+    // Exponential scaling: Base 50, +15% per stage
+    return 50.0 * pow(1.15, stage - 1);
   }
 
   double getEnemyDamage(int stage) {
@@ -32,7 +33,10 @@ class StageManager extends ChangeNotifier {
   double getEnemyAttackSpeed(int stage) {
     final baseInterval = 5.0;
     final reduction = (stage - 1) * 0.2;
-    return (baseInterval - reduction).clamp(2.0, 5.0); // Faster over time, min 2s
+    return (baseInterval - reduction).clamp(
+      2.0,
+      5.0,
+    ); // Faster over time, min 2s
   }
 
   /// Called when enemy is defeated
@@ -106,6 +110,22 @@ class StageManager extends ChangeNotifier {
     if (_currentStage <= 20) return '🔴';
     return '🟣';
   }
+
+  // Persistence
+  Map<String, dynamic> toJson() {
+    return {
+      'currentStage': _currentStage,
+      'totalKills': _totalKills,
+      'gameState': _gameState.index,
+    };
+  }
+
+  void load(Map<String, dynamic> json) {
+    _currentStage = (json['currentStage'] as num).toInt();
+    _totalKills = (json['totalKills'] as num).toInt();
+    _gameState = GameState.values[(json['gameState'] as num).toInt()];
+    notifyListeners();
+  }
 }
 
 /// Reward type enum
@@ -135,7 +155,10 @@ class RewardGenerator {
   static final Random _rand = Random();
 
   /// Generate 3 random rewards
-  static List<RewardOption> generateRewards(int stage, List<dynamic> availableSkills) {
+  static List<RewardOption> generateRewards(
+    int stage,
+    List<dynamic> availableSkills,
+  ) {
     final rewards = <RewardOption>[];
 
     // Always offer at least 1 skill if available
@@ -145,12 +168,14 @@ class RewardGenerator {
 
       for (int i = 0; i < skillCount; i++) {
         final skill = randomSkills[i];
-        rewards.add(RewardOption(
-          type: RewardType.skill,
-          title: '스킬: ${skill.name}',
-          description: skill.description,
-          value: skill,
-        ));
+        rewards.add(
+          RewardOption(
+            type: RewardType.skill,
+            title: '스킬: ${skill.name}',
+            description: skill.description,
+            value: skill,
+          ),
+        );
       }
     }
 
@@ -161,21 +186,25 @@ class RewardGenerator {
       if (choice == 0) {
         // Heal
         final healAmount = 30 + stage * 5;
-        rewards.add(RewardOption(
-          type: RewardType.heal,
-          title: 'HP 회복',
-          description: 'HP를 $healAmount 회복합니다',
-          value: healAmount,
-        ));
+        rewards.add(
+          RewardOption(
+            type: RewardType.heal,
+            title: 'HP 회복',
+            description: 'HP를 $healAmount 회복합니다',
+            value: healAmount,
+          ),
+        );
       } else {
         // Max HP increase
         final hpIncrease = 10 + stage * 2;
-        rewards.add(RewardOption(
-          type: RewardType.maxHpUp,
-          title: '최대 HP 증가',
-          description: '최대 HP가 $hpIncrease 증가합니다',
-          value: hpIncrease,
-        ));
+        rewards.add(
+          RewardOption(
+            type: RewardType.maxHpUp,
+            title: '최대 HP 증가',
+            description: '최대 HP가 $hpIncrease 증가합니다',
+            value: hpIncrease,
+          ),
+        );
       }
     }
 

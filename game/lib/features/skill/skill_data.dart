@@ -281,12 +281,94 @@ class Skills {
       poisonCloud,
       toxicStrike,
       corrosion,
+      venomDart,
+      plague,
+      toxicExplosion,
       // Earth
       rockThrow,
       earthquake,
       regeneration,
+      stoneSkin,
+      mudSlide,
+      meteor,
     ];
   }
+
+  // === NEW POISON SKILLS ===
+
+  static const SkillData venomDart = SkillData(
+    id: 'venom_dart',
+    name: '독침',
+    description: '빠른 독침으로 20 데미지를 줍니다.',
+    element: TileType.poison,
+    manaCost: 15,
+    type: SkillType.damage,
+    baseValue: 20,
+    cooldown: 1.5,
+    tags: ['poison', 'projectile', 'fast'],
+  );
+
+  static const SkillData plague = SkillData(
+    id: 'plague',
+    name: '역병',
+    description: '역병을 퍼뜨려 적을 약화시킵니다.',
+    element: TileType.poison,
+    manaCost: 45,
+    type: SkillType.debuff,
+    baseValue: 25,
+    cooldown: 9.0,
+    tags: ['poison', 'debuff', 'aoe'],
+  );
+
+  static const SkillData toxicExplosion = SkillData(
+    id: 'toxic_explosion',
+    name: '맹독 폭발',
+    description: '축적된 독을 폭발시켜 70 데미지를 줍니다.',
+    element: TileType.poison,
+    manaCost: 55,
+    type: SkillType.aoe,
+    baseValue: 70,
+    cooldown: 11.0,
+    tags: ['poison', 'aoe', 'ultimate'],
+  );
+
+  // === NEW EARTH SKILLS ===
+
+  static const SkillData stoneSkin = SkillData(
+    id: 'stone_skin',
+    name: '바위 피부',
+    description: '방어력을 크게 높여 50 피해를 흡수합니다.',
+    element: TileType.earth,
+    manaCost: 35,
+    type: SkillType.buff,
+    baseValue: 50,
+    cooldown: 12.0,
+    tags: ['earth', 'defense', 'strong'],
+  );
+
+  static const SkillData mudSlide = SkillData(
+    id: 'mud_slide',
+    name: '진흙탕',
+    description: '적의 속도를 크게 늦추고 15 데미지를 줍니다.',
+    element: TileType.earth,
+    manaCost: 25,
+    type: SkillType.debuff,
+    baseValue: 15,
+    cooldown: 6.0,
+    tags: ['earth', 'slow', 'aoe'],
+  );
+
+  static const SkillData meteor = SkillData(
+    id: 'meteor',
+    name: '메테오',
+    description: '거대 운석을 소환해 90 데미지를 줍니다.',
+    element: TileType.earth,
+    manaCost: 70,
+    type: SkillType.damage,
+    baseValue: 90,
+    cooldown: 15.0,
+    tags: ['earth', 'ultimate', 'strong'],
+  );
 
   /// Get skill by ID
   static SkillData? getSkillById(String id) {

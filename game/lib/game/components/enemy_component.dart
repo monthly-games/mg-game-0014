@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-class EnemyComponent extends PositionComponent {
+class EnemyComponent extends PositionComponent with HasGameRef {
   late double hp;
   final double maxHp;
   final double damage;
@@ -35,28 +35,32 @@ class EnemyComponent extends PositionComponent {
     }
   }
 
+  Sprite? _sprite;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    try {
+      _sprite = await gameRef.loadSprite('enemy_lab_monster.png');
+    } catch (e) {
+      print('Failed to load enemy sprite: $e');
+    }
+  }
+
   @override
   void render(Canvas canvas) {
     if (hp <= 0) return;
 
-    // Body
-    canvas.drawCircle(
-      Offset(width / 2, height / 2),
-      width / 2,
-      Paint()..color = Colors.deepPurple,
-    );
-
-    // Eyes
-    canvas.drawCircle(
-      Offset(width * 0.3, height * 0.4),
-      5,
-      Paint()..color = Colors.red,
-    );
-    canvas.drawCircle(
-      Offset(width * 0.7, height * 0.4),
-      5,
-      Paint()..color = Colors.red,
-    );
+    if (_sprite != null) {
+      _sprite!.render(canvas, size: size);
+    } else {
+      // Fallback
+      canvas.drawCircle(
+        Offset(width / 2, height / 2),
+        width / 2,
+        Paint()..color = Colors.deepPurple,
+      );
+    }
 
     // HP Bar
     final hpRatio = hp / maxHp;
