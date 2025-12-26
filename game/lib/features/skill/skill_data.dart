@@ -32,6 +32,8 @@ class SkillData {
     required this.cooldown,
     required this.tags,
   });
+
+  String get iconPath => 'icon_$id.png';
 }
 
 /// Pre-defined skills (18 total)

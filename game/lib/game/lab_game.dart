@@ -41,6 +41,15 @@ class LabGame extends FlameGame {
 
   @override
   Future<void> onLoad() async {
+    // Background
+    add(
+      SpriteComponent(
+        sprite: await loadSprite('bg_witch_lab.png'),
+        size: size,
+        position: Vector2.zero(),
+      ),
+    );
+
     final audioManager = GetIt.I<AudioManager>();
     audioManager.playBgm('bgm_lab.mp3', volume: 0.5);
 
