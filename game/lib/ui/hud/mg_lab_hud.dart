@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:mg_common_game/core/ui/typography/mg_text_styles.dart';
-import 'package:mg_common_game/core/ui/widgets/buttons/mg_icon_button.dart';
-import 'package:mg_common_game/core/ui/widgets/progress/mg_linear_progress.dart';
-import 'package:mg_common_game/core/ui/widgets/indicators/mg_resource_bar.dart';
+import 'package:mg_common_game/core/ui/widgets/buttons/mg_button.dart';
+import 'package:mg_common_game/core/ui/widgets/progress/mg_progress.dart';
+import 'package:mg_common_game/core/ui/widgets/hud/resource_bar.dart';
 
 /// MG-0014 Lab Game HUD
 /// 실험실 액션 게임용 HUD - HP, 스킬 게이지, 스테이지 정보 표시
@@ -176,7 +176,7 @@ class MGLabHud extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.star, color: MGColors.resourceGold, size: 16),
+               Icon(Icons.star, color: MGColors.gold, size: 16),
               const SizedBox(width: MGSpacing.xs),
               Text(
                 '$score',
