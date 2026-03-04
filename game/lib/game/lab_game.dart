@@ -56,7 +56,7 @@ class LabGame extends FlameGame {
     skillManager.initializeStarter();
 
     await _initPersistence(); // Load save if exists
-    await _initTutorial(); // Check tutorial status
+    // await _initTutorial(); // Check tutorial status - TODO: implement
 
     stageManager.addListener(_onStageStateChanged);
 
