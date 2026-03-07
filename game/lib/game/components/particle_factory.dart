@@ -25,7 +25,7 @@ class ParticleFactory {
           child: ComputedParticle(
             renderer: (canvas, particle) {
               final paint = Paint()
-                ..color = color.withOpacity(1 - particle.progress);
+                ..color = color.withValues(alpha: 1 - particle.progress);
               canvas.drawCircle(
                 Offset.zero,
                 3 * (1 - particle.progress),
@@ -59,7 +59,7 @@ class ParticleFactory {
                 lifespan: 0.8,
                 renderer: (canvas, particle) {
                   final paint = Paint()
-                    ..color = color.withOpacity(1 - particle.progress);
+                    ..color = color.withValues(alpha: 1 - particle.progress);
                   canvas.drawRect(
                     Rect.fromCenter(center: Offset.zero, width: 6, height: 6),
                     paint,

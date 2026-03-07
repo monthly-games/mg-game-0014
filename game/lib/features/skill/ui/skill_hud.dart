@@ -27,9 +27,9 @@ class SkillHud extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.6),
+            color: Colors.black.withValues(alpha: 0.6),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            border: Border.all(color: Colors.purple.withOpacity(0.3)),
+            border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -79,7 +79,7 @@ class SkillHud extends StatelessWidget {
                             BoxShadow(
                               color: _getElementColor(
                                 skill.element,
-                              ).withOpacity(0.5),
+                              ).withValues(alpha: 0.5),
                               blurRadius: 10,
                             ),
                           ]

@@ -136,7 +136,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
     final canAfford = mm.canPurchase(id, cost);
 
     return Card(
-      color: isUnlocked ? color.withOpacity(0.2) : Colors.grey[900],
+      color: isUnlocked ? color.withValues(alpha: 0.2) : Colors.grey[900],
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
         side: BorderSide(

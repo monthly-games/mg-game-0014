@@ -69,7 +69,7 @@ class MGLabHud extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(MGSpacing.xs),
       decoration: BoxDecoration(
-        color: MGColors.surface.withOpacity(0.8),
+        color: MGColors.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(MGSpacing.sm),
         border: Border.all(color: MGColors.border),
       ),
@@ -85,7 +85,7 @@ class MGLabHud extends StatelessWidget {
                 child: MGLinearProgress(
                   value: hp / maxHp,
                   height: 12,
-                  backgroundColor: Colors.red.withOpacity(0.3),
+                  backgroundColor: Colors.red.withValues(alpha: 0.3),
                   progressColor: Colors.red,
                 ),
               ),
@@ -109,7 +109,7 @@ class MGLabHud extends StatelessWidget {
                 child: MGLinearProgress(
                   value: energy / maxEnergy,
                   height: 10,
-                  backgroundColor: Colors.yellow.withOpacity(0.3),
+                  backgroundColor: Colors.yellow.withValues(alpha: 0.3),
                   progressColor: Colors.yellow,
                 ),
               ),
@@ -134,7 +134,7 @@ class MGLabHud extends StatelessWidget {
         vertical: MGSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: MGColors.primaryAction.withOpacity(0.8),
+        color: MGColors.primaryAction.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(MGSpacing.sm),
         border: Border.all(color: MGColors.primaryAction),
       ),
@@ -170,7 +170,7 @@ class MGLabHud extends StatelessWidget {
             vertical: MGSpacing.xs,
           ),
           decoration: BoxDecoration(
-            color: MGColors.surface.withOpacity(0.8),
+            color: MGColors.surface.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(MGSpacing.xs),
           ),
           child: Row(
@@ -203,7 +203,7 @@ class MGLabHud extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(MGSpacing.sm),
       decoration: BoxDecoration(
-        color: MGColors.surface.withOpacity(0.9),
+        color: MGColors.surface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(MGSpacing.sm),
         border: Border.all(color: MGColors.border),
       ),
@@ -224,8 +224,8 @@ class MGLabHud extends StatelessWidget {
         height: 56,
         decoration: BoxDecoration(
           color: canUse
-              ? skill.color.withOpacity(0.3)
-              : Colors.grey.withOpacity(0.3),
+              ? skill.color.withValues(alpha: 0.3)
+              : Colors.grey.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(MGSpacing.sm),
           border: Border.all(
             color: canUse ? skill.color : Colors.grey,
