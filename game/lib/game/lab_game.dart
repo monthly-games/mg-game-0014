@@ -18,6 +18,7 @@ import '../features/enemy/enemy_data.dart';
 import '../systems/run_save_manager.dart';
 
 import 'package:mg_common_game/core/ui/components/floating_text_component.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class LabGame extends FlameGame {
   final GridManager gridManager = GridManager();
@@ -83,7 +84,7 @@ class LabGame extends FlameGame {
       text: "HP: 100",
       position: Vector2(20, size.y - 50),
       textRenderer: TextPaint(
-        style: const TextStyle(color: Colors.white, fontSize: 20),
+        style: const TextStyle(color: MGColors.textHighEmphasis, fontSize: 20),
       ),
     );
     add(_playerHpText);
@@ -385,7 +386,7 @@ class LabGame extends FlameGame {
       case TileType.poison:
         return Colors.purpleAccent;
       case TileType.empty:
-        return Colors.white;
+        return MGColors.textHighEmphasis;
     }
   }
 }

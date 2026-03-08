@@ -79,21 +79,21 @@ class MGLabHud extends StatelessWidget {
           // HP Bar
           Row(
             children: [
-              const Icon(Icons.favorite, color: Colors.red, size: 16),
+              const Icon(Icons.favorite, color: MGColors.error, size: 16),
               const SizedBox(width: MGSpacing.xs),
               Expanded(
                 child: MGLinearProgress(
                   value: hp / maxHp,
                   height: 12,
-                  backgroundColor: Colors.red.withValues(alpha: 0.3),
-                  progressColor: Colors.red,
+                  backgroundColor: MGColors.error.withValues(alpha: 0.3),
+                  progressColor: MGColors.error,
                 ),
               ),
               const SizedBox(width: MGSpacing.xs),
               Text(
                 '$hp',
                 style: MGTextStyles.caption.copyWith(
-                  color: Colors.white,
+                  color: MGColors.textHighEmphasis,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -117,7 +117,7 @@ class MGLabHud extends StatelessWidget {
               Text(
                 '$energy',
                 style: MGTextStyles.caption.copyWith(
-                  color: Colors.white,
+                  color: MGColors.textHighEmphasis,
                 ),
               ),
             ],
@@ -144,7 +144,7 @@ class MGLabHud extends StatelessWidget {
           Text(
             'STAGE $stage',
             style: MGTextStyles.buttonMedium.copyWith(
-              color: Colors.white,
+              color: MGColors.textHighEmphasis,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -181,7 +181,7 @@ class MGLabHud extends StatelessWidget {
               Text(
                 '$score',
                 style: MGTextStyles.buttonMedium.copyWith(
-                  color: Colors.white,
+                  color: MGColors.textHighEmphasis,
                 ),
               ),
             ],
@@ -225,10 +225,10 @@ class MGLabHud extends StatelessWidget {
         decoration: BoxDecoration(
           color: canUse
               ? skill.color.withValues(alpha: 0.3)
-              : Colors.grey.withValues(alpha: 0.3),
+              : MGColors.common.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(MGSpacing.sm),
           border: Border.all(
-            color: canUse ? skill.color : Colors.grey,
+            color: canUse ? skill.color : MGColors.common,
             width: 2,
           ),
         ),
@@ -237,7 +237,7 @@ class MGLabHud extends StatelessWidget {
           children: [
             Icon(
               skill.icon,
-              color: canUse ? skill.color : Colors.grey,
+              color: canUse ? skill.color : MGColors.common,
               size: 28,
             ),
             if (!canUse)
@@ -252,7 +252,7 @@ class MGLabHud extends StatelessWidget {
                   child: Text(
                     '${skill.currentCooldown}',
                     style: MGTextStyles.h3.copyWith(
-                      color: Colors.white,
+                      color: MGColors.textHighEmphasis,
                     ),
                   ),
                 ),

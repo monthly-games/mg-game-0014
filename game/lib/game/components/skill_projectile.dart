@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../features/puzzle/grid_manager.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class SkillProjectile extends PositionComponent {
   final TileType type;
@@ -56,22 +57,22 @@ class SkillProjectile extends PositionComponent {
     canvas.drawCircle(
       Offset(width / 2, height / 2),
       width / 4,
-      Paint()..color = Colors.white,
+      Paint()..color = MGColors.textHighEmphasis,
     );
   }
 
   Color _getColor(TileType type) {
     switch (type) {
       case TileType.fire:
-        return Colors.orange;
+        return MGColors.warning;
       case TileType.water:
-        return Colors.blue;
+        return MGColors.info;
       case TileType.earth:
-        return Colors.green;
+        return MGColors.success;
       case TileType.poison:
         return Colors.purple;
       default:
-        return Colors.white;
+        return MGColors.textHighEmphasis;
     }
   }
 }

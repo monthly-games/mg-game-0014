@@ -3,6 +3,7 @@ import '../features/meta/meta_manager.dart';
 import '../systems/run_save_manager.dart';
 import 'game_screen.dart';
 import 'research_screen.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -70,7 +71,7 @@ Widget build(BuildContext context) {
               if (_hasSave) ...[
                 _MenuButton(
                   label: "CONTINUE EXPERIMENT",
-                  color: Colors.green,
+                  color: MGColors.success,
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
@@ -175,7 +176,7 @@ class _MenuButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.white,
+          foregroundColor: MGColors.textHighEmphasis,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: const BorderSide(color: Colors.white24),

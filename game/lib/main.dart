@@ -282,7 +282,7 @@ class WitchLabApp extends StatelessWidget {
       dividerColor: Colors.white24,
       snackBarTheme: SnackBarThemeData(
         backgroundColor: const Color(0xFF3a0050),
-        contentTextStyle: const TextStyle(color: Colors.white),
+        contentTextStyle: const TextStyle(color: MGColors.textHighEmphasis),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -370,7 +370,7 @@ class UpgradeTileWidget extends StatelessWidget {
                   Text(
                     upgrade.name,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: MGColors.textHighEmphasis,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -404,7 +404,7 @@ class UpgradeTileWidget extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       canAfford ? Colors.purpleAccent : Colors.grey[800],
-                  foregroundColor: Colors.white,
+                  foregroundColor: MGColors.textHighEmphasis,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),

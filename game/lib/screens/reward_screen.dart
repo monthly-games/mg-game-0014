@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/stage/stage_manager.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class RewardScreen extends StatelessWidget {
   final List<RewardOption> rewards;
@@ -28,7 +29,7 @@ class RewardScreen extends StatelessWidget {
               Text(
                 '🎉 스테이지 $currentStage 클리어!',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: MGColors.textHighEmphasis,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
@@ -64,11 +65,11 @@ class RewardScreen extends StatelessWidget {
         icon = Icons.auto_fix_high;
         break;
       case RewardType.heal:
-        cardColor = Colors.green;
+        cardColor = MGColors.success;
         icon = Icons.favorite;
         break;
       case RewardType.maxHpUp:
-        cardColor = Colors.blue;
+        cardColor = MGColors.info;
         icon = Icons.shield;
         break;
     }
@@ -92,7 +93,7 @@ class RewardScreen extends StatelessWidget {
                 color: cardColor,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, size: 36, color: Colors.white),
+              child: Icon(icon, size: 36, color: MGColors.textHighEmphasis),
             ),
             const SizedBox(width: 16),
 

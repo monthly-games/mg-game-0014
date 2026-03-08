@@ -484,7 +484,7 @@ class _GachaScreenState extends State<GachaScreen>
             child: Text(
               rarity.nameKr,
               style: const TextStyle(
-                color: Colors.white,
+                color: MGColors.textHighEmphasis,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),

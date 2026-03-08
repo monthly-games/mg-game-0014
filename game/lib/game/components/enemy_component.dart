@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class EnemyComponent extends PositionComponent with HasGameRef {
   late double hp;
@@ -70,7 +71,7 @@ class EnemyComponent extends PositionComponent with HasGameRef {
     );
     canvas.drawRect(
       Rect.fromLTWH(0, -15, width * hpRatio.clamp(0, 1), 8),
-      Paint()..color = Colors.red,
+      Paint()..color = MGColors.error,
     );
 
     // Attack Timer Bar
@@ -81,7 +82,7 @@ class EnemyComponent extends PositionComponent with HasGameRef {
     );
     canvas.drawRect(
       Rect.fromLTWH(0, height + 5, width * timerRatio.clamp(0, 1), 5),
-      Paint()..color = Colors.orange,
+      Paint()..color = MGColors.warning,
     );
   }
 

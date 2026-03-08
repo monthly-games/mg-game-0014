@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../systems/tutorial_manager.dart';
 import '../lab_game.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class TutorialOverlay extends StatelessWidget {
   final LabGame game;
@@ -67,7 +68,7 @@ class TutorialOverlay extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: MGColors.textHighEmphasis,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -83,7 +84,7 @@ class TutorialOverlay extends StatelessWidget {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6C63FF),
-                        foregroundColor: Colors.white,
+                        foregroundColor: MGColors.textHighEmphasis,
                       ),
                       onPressed: () {
                         tutorialManager.advance();

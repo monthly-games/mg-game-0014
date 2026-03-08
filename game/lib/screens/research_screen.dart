@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/meta/meta_manager.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class ResearchScreen extends StatefulWidget {
   const ResearchScreen({super.key});
@@ -110,7 +111,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
                       onPressed: () => mm.resetProgress(),
                       child: const Text(
                         "DEBUG: RESET",
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(color: MGColors.error),
                       ),
                     ),
                   ],
@@ -150,22 +151,22 @@ class _ResearchScreenState extends State<ResearchScreen> {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: isUnlocked ? color : Colors.grey[800],
-          child: Icon(icon, color: isUnlocked ? Colors.white : Colors.grey),
+          child: Icon(icon, color: isUnlocked ? MGColors.textHighEmphasis : MGColors.common),
         ),
         title: Text(
           title,
           style: TextStyle(
-            color: isUnlocked ? color : Colors.white,
+            color: isUnlocked ? color : MGColors.textHighEmphasis,
             fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: Text(desc, style: const TextStyle(color: Colors.white70)),
         trailing: isUnlocked
-            ? const Icon(Icons.check_circle, color: Colors.green)
+            ? const Icon(Icons.check_circle, color: MGColors.success)
             : ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: canAfford ? color : Colors.grey[800],
-                  foregroundColor: Colors.white,
+                  foregroundColor: MGColors.textHighEmphasis,
                 ),
                 onPressed: canAfford
                     ? () => mm.purchaseUpgrade(id, cost)

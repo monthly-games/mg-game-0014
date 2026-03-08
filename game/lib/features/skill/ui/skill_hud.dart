@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../skill_manager.dart';
 import '../skill_data.dart';
 import '../../player/player_data.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class SkillHud extends StatelessWidget {
   final SkillManager skillManager;
@@ -71,7 +72,7 @@ class SkillHud extends StatelessWidget {
                     border: Border.all(
                       color: hasMana
                           ? _getElementColor(skill.element)
-                          : Colors.grey,
+                          : MGColors.common,
                       width: 2,
                     ),
                     boxShadow: hasMana && !isOnCooldown
@@ -145,15 +146,15 @@ class SkillHud extends StatelessWidget {
   Color _getElementColor(TileType type) {
     switch (type) {
       case TileType.fire:
-        return Colors.orange;
+        return MGColors.warning;
       case TileType.water:
-        return Colors.blue;
+        return MGColors.info;
       case TileType.earth:
-        return Colors.green;
+        return MGColors.success;
       case TileType.poison:
         return Colors.purple;
       default:
-        return Colors.grey;
+        return MGColors.common;
     }
   }
 }

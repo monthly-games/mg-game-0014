@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class GameOverScreen extends StatelessWidget {
   final int finalStage;
@@ -27,7 +28,7 @@ class GameOverScreen extends StatelessWidget {
               const Icon(
                 Icons.sentiment_very_dissatisfied,
                 size: 80,
-                color: Colors.red,
+                color: MGColors.error,
               ),
               const SizedBox(height: 16),
 
@@ -35,7 +36,7 @@ class GameOverScreen extends StatelessWidget {
               const Text(
                 'GAME OVER',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: MGColors.error,
                   fontSize: 48,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 4,
@@ -56,8 +57,8 @@ class GameOverScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: onRestart,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: MGColors.info,
+                  foregroundColor: MGColors.textHighEmphasis,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 48,
                     vertical: 20,
@@ -92,7 +93,7 @@ class GameOverScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: MGColors.textHighEmphasis.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -108,7 +109,7 @@ class GameOverScreen extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              color: Colors.white,
+              color: MGColors.textHighEmphasis,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),

@@ -8,6 +8,7 @@ import 'package:mg_common_game/core/ui/overlays/tutorial_game_overlay.dart';
 import '../game/lab_game.dart';
 import '../features/draft/draft_manager.dart';
 import '../features/skill/skill_model.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -49,17 +50,17 @@ class _GameScreenState extends State<GameScreen> {
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          title: const Text("GAME OVER", style: TextStyle(color: Colors.red)),
+          title: const Text("GAME OVER", style: TextStyle(color: MGColors.error)),
           content: Text(
             "You survived until Stage ${stageManager.currentStage}",
           ),
           backgroundColor: Colors.grey[900],
           titleTextStyle: const TextStyle(
-            color: Colors.red,
+            color: MGColors.error,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
-          contentTextStyle: const TextStyle(color: Colors.white),
+          contentTextStyle: const TextStyle(color: MGColors.textHighEmphasis),
           actions: [
             TextButton(
               onPressed: () {
@@ -201,7 +202,7 @@ class _GameScreenState extends State<GameScreen> {
                                   _game.spawnFloatingText(
                                     bgDamage.toInt().toString(),
                                     _game.currentEnemy!.position,
-                                    Colors.white,
+                                    MGColors.textHighEmphasis,
                                   );
                                 }
                               },
@@ -270,7 +271,7 @@ class _GameScreenState extends State<GameScreen> {
     String name;
     switch (type) {
       case SynergyType.fire:
-        color = Colors.orange;
+        color = MGColors.warning;
         name = "Fire";
         break;
       case SynergyType.ice:
@@ -278,7 +279,7 @@ class _GameScreenState extends State<GameScreen> {
         name = "Ice";
         break;
       case SynergyType.poison:
-        color = Colors.green;
+        color = MGColors.success;
         name = "Poison";
         break;
     }
@@ -290,7 +291,7 @@ class _GameScreenState extends State<GameScreen> {
         Text(
           "$name: $count/3",
           style: TextStyle(
-            color: active ? color : Colors.grey,
+            color: active ? color : MGColors.common,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -326,7 +327,7 @@ class _GameScreenState extends State<GameScreen> {
                     Text(
                       skill.name,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: MGColors.textHighEmphasis,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -342,7 +343,7 @@ class _GameScreenState extends State<GameScreen> {
                     const SizedBox(height: 5),
                     Text(
                       skill.type.name.toUpperCase(),
-                      style: const TextStyle(color: Colors.grey, fontSize: 10),
+                      style: const TextStyle(color: MGColors.common, fontSize: 10),
                     ),
                   ],
                 ),
