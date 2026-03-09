@@ -30,7 +30,6 @@ class MGLabHud extends StatelessWidget {
     required this.score,
     this.skills = const [],
     this.onPause,
-    this.onDailyHub,
   });
 
   @override
@@ -190,13 +189,6 @@ class MGLabHud extends StatelessWidget {
         ),
         const SizedBox(width: MGSpacing.xs),
         // 일시정지
-                if (onDailyHub != null)
-                  MGIconButton(
-                    icon: Icons.calendar_today,
-                    onPressed: onDailyHub!,
-                    buttonSize: MGIconButtonSize.small,
-                  ),
-                const SizedBox(width: MGSpacing.xs),
         if (onPause != null)
           MGIconButton(
             icon: Icons.pause,
@@ -279,7 +271,6 @@ class SkillInfo {
   final int currentCooldown;
   final int maxCooldown;
   final VoidCallback? onTap;
-  final VoidCallback? onDailyHub;
 
   const SkillInfo({
     required this.name,
