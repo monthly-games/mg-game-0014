@@ -3,11 +3,11 @@ import '../../systems/tutorial_manager.dart';
 import '../lab_game.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
-class TutorialOverlay extends StatelessWidget {
+class GameTutorialOverlay extends StatelessWidget {
   final LabGame game;
-  final TutorialManager tutorialManager;
+  final GameTutorialManager tutorialManager;
 
-  const TutorialOverlay({
+  const GameTutorialOverlay({
     super.key,
     required this.game,
     required this.tutorialManager,
@@ -25,27 +25,27 @@ class TutorialOverlay extends StatelessWidget {
         String content = '';
 
         switch (step) {
-          case TutorialStep.welcome:
+          case GameTutorialStep.welcome:
             title = 'Welcome to the Lab!';
             content =
                 'Match tiles to gather mana and defeat the failed experiments.';
             break;
-          case TutorialStep.matchBasics:
+          case GameTutorialStep.matchBasics:
             title = 'Matching';
             content =
                 'Connect 3 or more tiles of the same color to attack.\nDiagonal matches work too!';
             break;
-          case TutorialStep.skills:
+          case GameTutorialStep.skills:
             title = 'Skills';
             content =
                 'Use gathered mana to cast powerful skills.\nCheck your skill bar below.';
             break;
-          case TutorialStep.enemies:
+          case GameTutorialStep.enemies:
             title = 'Enemies';
             content =
                 'Enemies will attack you over time.\nDefeat them before your HP runs out!';
             break;
-          case TutorialStep.completed:
+          case GameTutorialStep.completed:
             return const SizedBox.shrink();
         }
 
@@ -93,7 +93,7 @@ class TutorialOverlay extends StatelessWidget {
                         }
                       },
                       child: Text(
-                        step == TutorialStep.enemies
+                        step == GameTutorialStep.enemies
                             ? 'Start Experiment'
                             : 'Next',
                       ),

@@ -225,7 +225,7 @@ class MGLabHud extends StatelessWidget {
           MGIconButton(
             icon: Icons.pause,
             onPressed: onPause!,
-            size: MGIconButtonSize.small,
+            buttonSize: MGIconButtonSize.small,
           ),
       ],
     );

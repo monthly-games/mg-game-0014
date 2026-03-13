@@ -6,6 +6,7 @@ import 'package:mg_common_game/core/ui/overlays/pause_game_overlay.dart';
 import 'package:mg_common_game/core/ui/overlays/settings_game_overlay.dart';
 import 'package:mg_common_game/core/ui/overlays/tutorial_game_overlay.dart';
 import '../game/lab_game.dart';
+import '../game/overlays/tutorial_overlay.dart';
 import '../features/draft/draft_manager.dart';
 import '../features/skill/skill_model.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
@@ -114,7 +115,7 @@ class _GameScreenState extends State<GameScreen> {
                   game.overlays.remove('SettingsGame');
                 },
               ),
-              'tutorial': (context, LabGame game) => TutorialOverlay(
+              'tutorial': (context, LabGame game) => GameTutorialOverlay(
                 game: game,
                 tutorialManager: game.tutorialManager,
               ),

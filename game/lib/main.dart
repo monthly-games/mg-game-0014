@@ -1,14 +1,5 @@
+import 'package:mg_common_game/mg_common_game.dart';
 import 'package:flutter/material.dart';
-import 'package:mg_common_game/core/ui/screens/seasonal_event_screen.dart';
-import 'package:mg_common_game/core/ui/screens/tournament_screen.dart';
-import 'package:mg_common_game/core/ui/screens/guild_war_screen.dart';
-import 'package:mg_common_game/systems/events/seasonal_content_manager.dart';
-import 'package:mg_common_game/systems/competitive/tournament_manager.dart';
-import 'package:mg_common_game/systems/social/guild_war_manager.dart';
-import 'package:mg_common_game/core/ui/screens/daily_hub_screen.dart';
-import 'package:mg_common_game/systems/retention/daily_challenge_manager.dart';
-import 'package:mg_common_game/systems/retention/streak_manager.dart';
-import 'package:mg_common_game/systems/retention/login_rewards_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mg_common_game/systems/systems.dart';
 import 'package:mg_common_game/systems/progression/achievement_manager.dart';
