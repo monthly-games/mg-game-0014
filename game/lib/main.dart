@@ -1,7 +1,6 @@
-import 'package:mg_common_game/mg_common_game.dart';
+import 'package:mg_common_game/mg_common_game.dart' hide CraftingManager;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mg_common_game/systems/systems.dart';
 import 'package:mg_common_game/systems/progression/achievement_manager.dart';
 import 'package:mg_common_game/systems/quests/daily_quest.dart';
 import 'package:provider/provider.dart';
@@ -50,12 +49,19 @@ void main() async {
   _applyUpgradeEffects(upgradeManager);
 
   // DailyQuest 시스템
-  GetIt.I.registerSingleton(DailyQuestManager());
+  if (!GetIt.I.isRegistered<DailyQuestManager>()) {
+    GetIt.I.registerSingleton(DailyQuestManager());
+  }
   // Achievement 시스템
-  GetIt.I.registerSingleton(AchievementManager());
+  if (!GetIt.I.isRegistered<AchievementManager>()) {
+    GetIt.I.registerSingleton(AchievementManager());
+  }
   // Collection 시스템
   if (!GetIt.I.isRegistered<CollectionManager>()) {
     GetIt.I.registerSingleton(CollectionManager());
+    _registerCollections();
+  }
+
   // ── P3 Engine Systems ─────────────────────────────────────
   if (!GetIt.I.isRegistered<GuildWarManager>()) {
     GetIt.I.registerSingleton(GuildWarManager());
@@ -66,8 +72,7 @@ void main() async {
   if (!GetIt.I.isRegistered<SeasonalContentManager>()) {
     GetIt.I.registerSingleton(SeasonalContentManager());
   }
-_registerCollections();
-  }
+
   _registerAchievements();
   _registerDailyQuests();
   runApp(const WitchLabApp());
@@ -105,16 +110,17 @@ Future<void> _initializeSystems() async {
 
   if (!di.isRegistered<PotionManager>()) {
     di.registerSingleton<PotionManager>(PotionManager());
+  }
+
   // ── Retention Systems for DailyHub ────────────────────────
-  if (!GetIt.I.isRegistered<LoginRewardsManager>()) {
-    GetIt.I.registerSingleton(LoginRewardsManager());
+  if (!di.isRegistered<LoginRewardsManager>()) {
+    di.registerSingleton(LoginRewardsManager());
   }
-  if (!GetIt.I.isRegistered<StreakManager>()) {
-    GetIt.I.registerSingleton(StreakManager());
+  if (!di.isRegistered<StreakManager>()) {
+    di.registerSingleton(StreakManager());
   }
-  if (!GetIt.I.isRegistered<DailyChallengeManager>()) {
-    GetIt.I.registerSingleton(DailyChallengeManager());
-  }
+  if (!di.isRegistered<DailyChallengeManager>()) {
+    di.registerSingleton(DailyChallengeManager());
   }
 }
 
@@ -612,47 +618,47 @@ void _registerCollections() {
   final collection = GetIt.I<CollectionManager>();
 
   // Characters 컬렉션
-  collection.registerCollection(const Collection(
+  collection.registerCollection(Collection(
     id: 'characters',
     name: '캐릭터',
     description: '모든 캐릭터를 수집하세요',
     items: [
-      CollectionItem(
+      const CollectionItem(
         id: 'char_warrior',
         name: '전사',
         description: '강인한 근접 전투 캐릭터',
         rarity: CollectionRarity.common,
       ),
-      CollectionItem(
+      const CollectionItem(
         id: 'char_mage',
         name: '마법사',
         description: '강력한 마법 공격 캐릭터',
         rarity: CollectionRarity.rare,
       ),
-      CollectionItem(
+      const CollectionItem(
         id: 'char_archer',
         name: '궁수',
         description: '원거리 정밀 공격 캐릭터',
         rarity: CollectionRarity.rare,
       ),
-      CollectionItem(
+      const CollectionItem(
         id: 'char_assassin',
         name: '암살자',
         description: '치명적인 은신 공격 캐릭터',
         rarity: CollectionRarity.epic,
       ),
-      CollectionItem(
+      const CollectionItem(
         id: 'char_healer',
         name: '힐러',
         description: '팀을 치유하는 지원 캐릭터',
         rarity: CollectionRarity.legendary,
       ),
     ],
-    completionReward: CollectionReward(type: RewardType.gold, amount: 10000),
+    completionReward: const CollectionReward(type: RewardType.gold, amount: 10000),
     milestoneRewards: {
-      25: CollectionReward(type: RewardType.gold, amount: 1000),
-      50: CollectionReward(type: RewardType.gold, amount: 3000),
-      75: CollectionReward(type: RewardType.gold, amount: 5000),
+      25: const CollectionReward(type: RewardType.gold, amount: 1000),
+      50: const CollectionReward(type: RewardType.gold, amount: 3000),
+      75: const CollectionReward(type: RewardType.gold, amount: 5000),
     },
   ));
 

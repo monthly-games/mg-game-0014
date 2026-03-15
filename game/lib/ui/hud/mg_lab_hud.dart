@@ -18,6 +18,10 @@ class MGLabHud extends StatelessWidget {
   final int score;
   final List<SkillInfo> skills;
   final VoidCallback? onPause;
+  final VoidCallback? onDailyHub;
+  final VoidCallback? onGuildWar;
+  final VoidCallback? onTournament;
+  final VoidCallback? onSeasonalEvent;
 
   const MGLabHud({
     super.key,
@@ -90,7 +94,7 @@ class MGLabHud extends StatelessWidget {
                   value: hp / maxHp,
                   height: 12,
                   backgroundColor: MGColors.error.withValues(alpha: 0.3),
-                  progressColor: MGColors.error,
+                  valueColor: MGColors.error,
                 ),
               ),
               const SizedBox(width: MGSpacing.xs),
@@ -114,7 +118,7 @@ class MGLabHud extends StatelessWidget {
                   value: energy / maxEnergy,
                   height: 10,
                   backgroundColor: Colors.yellow.withValues(alpha: 0.3),
-                  progressColor: Colors.yellow,
+                  valueColor: Colors.yellow,
                 ),
               ),
               const SizedBox(width: MGSpacing.xs),
@@ -180,7 +184,7 @@ class MGLabHud extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-               Icon(Icons.star, color: MGColors.gold, size: 16),
+               const Icon(Icons.star, color: MGColors.gold, size: 16),
               const SizedBox(width: MGSpacing.xs),
               Text(
                 '$score',
@@ -315,5 +319,9 @@ class SkillInfo {
     required this.currentCooldown,
     required this.maxCooldown,
     this.onTap,
+    this.onDailyHub,
+    this.onGuildWar,
+    this.onTournament,
+    this.onSeasonalEvent,
   });
 }

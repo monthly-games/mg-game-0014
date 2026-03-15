@@ -9,6 +9,7 @@ import '../game/lab_game.dart';
 import '../game/overlays/tutorial_overlay.dart';
 import '../features/draft/draft_manager.dart';
 import '../features/skill/skill_model.dart';
+import '../systems/tutorial_manager.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class GameScreen extends StatefulWidget {
@@ -20,11 +21,13 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   late final LabGame _game;
+  late final GameTutorialManager _tutorialManager;
 
   @override
   void initState() {
     super.initState();
     _game = LabGame();
+    _tutorialManager = GameTutorialManager();
     _game.stageManager.addListener(_onStageChanged);
   }
 
@@ -117,7 +120,7 @@ class _GameScreenState extends State<GameScreen> {
               ),
               'tutorial': (context, LabGame game) => GameTutorialOverlay(
                 game: game,
-                tutorialManager: game.tutorialManager,
+                tutorialManager: _tutorialManager,
               ),
               'TutorialGame': (context, LabGame game) => TutorialGameOverlay(
                 game: game,
@@ -201,7 +204,7 @@ class _GameScreenState extends State<GameScreen> {
                                 _game.currentEnemy?.takeDamage(dmg);
                                 if (_game.currentEnemy != null) {
                                   _game.spawnFloatingText(
-                                    bgDamage.toInt().toString(),
+                                    dmg.toInt().toString(),
                                     _game.currentEnemy!.position,
                                     MGColors.textHighEmphasis,
                                   );
