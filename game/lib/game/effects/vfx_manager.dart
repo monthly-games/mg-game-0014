@@ -6,64 +6,64 @@ import 'package:flutter/material.dart';
 
 /// VFX Manager for Witch's Lab: Experimental Puzzle (MG-0014)
 /// Puzzle + Roguelike + Skill Build 게임 전용 이펙트 관리자
-class VfxManager extends Component with HasGameRef {
+class VfxManager extends Component with HasGameReference {
   VfxManager();
   final Random _random = Random();
 
   // Puzzle Effects
   void showPuzzleMatch(Vector2 position, Color matchColor, {int chainCount = 1}) {
     final intensity = chainCount.clamp(1, 5);
-    gameRef.add(_createBurstEffect(position: position, color: matchColor, count: 12 * intensity, speed: 70.0 * intensity, lifespan: 0.5));
-    if (chainCount >= 3) gameRef.add(_createSparkleEffect(position: position, color: Colors.white, count: 10));
+    game.add(_createBurstEffect(position: position, color: matchColor, count: 12 * intensity, speed: 70.0 * intensity, lifespan: 0.5));
+    if (chainCount >= 3) game.add(_createSparkleEffect(position: position, color: Colors.white, count: 10));
   }
 
   void showChainReaction(Vector2 position, int chainLevel) {
-    gameRef.add(_ChainText(position: position, chain: chainLevel));
+    game.add(_ChainText(position: position, chain: chainLevel));
     for (int i = 0; i < chainLevel.clamp(1, 5); i++) {
       Future.delayed(Duration(milliseconds: i * 80), () {
         if (!isMounted) return;
-        gameRef.add(_createSparkleEffect(position: position + Vector2((_random.nextDouble() - 0.5) * 60, (_random.nextDouble() - 0.5) * 40), color: Colors.amber, count: 8));
+        game.add(_createSparkleEffect(position: position + Vector2((_random.nextDouble() - 0.5) * 60, (_random.nextDouble() - 0.5) * 40), color: Colors.amber, count: 8));
       });
     }
   }
 
   // Skill/Synergy Effects
   void showSkillSelect(Vector2 position, Color skillColor) {
-    gameRef.add(_createConvergeEffect(position: position, color: skillColor));
-    gameRef.add(_createGroundCircle(position: position, color: skillColor));
+    game.add(_createConvergeEffect(position: position, color: skillColor));
+    game.add(_createGroundCircle(position: position, color: skillColor));
   }
 
   void showSynergyActivation(Vector2 position, Color synergyColor) {
-    gameRef.add(_createExplosionEffect(position: position, color: synergyColor, count: 30, radius: 65));
-    gameRef.add(_createSparkleEffect(position: position, color: Colors.white, count: 15));
-    gameRef.add(_SynergyText(position: position));
+    game.add(_createExplosionEffect(position: position, color: synergyColor, count: 30, radius: 65));
+    game.add(_createSparkleEffect(position: position, color: Colors.white, count: 15));
+    game.add(_SynergyText(position: position));
   }
 
   void showExperimentSuccess(Vector2 position) {
-    gameRef.add(_createExplosionEffect(position: position, color: Colors.green, count: 25, radius: 60));
-    gameRef.add(_createSparkleEffect(position: position, color: Colors.lightGreen, count: 12));
+    game.add(_createExplosionEffect(position: position, color: Colors.green, count: 25, radius: 60));
+    game.add(_createSparkleEffect(position: position, color: Colors.lightGreen, count: 12));
     showNumberPopup(position, 'SUCCESS!', color: Colors.green);
   }
 
   void showExperimentFailure(Vector2 position) {
-    gameRef.add(_createSmokeEffect(position: position, count: 15, color: Colors.grey.shade700));
-    gameRef.add(_createBurstEffect(position: position, color: Colors.red.shade300, count: 10, speed: 50, lifespan: 0.4));
+    game.add(_createSmokeEffect(position: position, count: 15, color: Colors.grey.shade700));
+    game.add(_createBurstEffect(position: position, color: Colors.red.shade300, count: 10, speed: 50, lifespan: 0.4));
   }
 
   // Meta/Upgrade Effects
   void showMetaUpgrade(Vector2 position) {
-    gameRef.add(_createExplosionEffect(position: position, color: Colors.purple, count: 35, radius: 70));
-    gameRef.add(_createRisingEffect(position: position, color: Colors.purple.shade200, count: 15, speed: 80));
-    gameRef.add(_UpgradeText(position: position));
+    game.add(_createExplosionEffect(position: position, color: Colors.purple, count: 35, radius: 70));
+    game.add(_createRisingEffect(position: position, color: Colors.purple.shade200, count: 15, speed: 80));
+    game.add(_UpgradeText(position: position));
   }
 
   void showRunStart(Vector2 centerPosition) {
-    gameRef.add(_createSparkleEffect(position: centerPosition, color: Colors.cyan, count: 25));
-    gameRef.add(_RunStartText(position: centerPosition));
+    game.add(_createSparkleEffect(position: centerPosition, color: Colors.cyan, count: 25));
+    game.add(_RunStartText(position: centerPosition));
   }
 
   void showNumberPopup(Vector2 position, String text, {Color color = Colors.white}) {
-    gameRef.add(_NumberPopup(position: position, text: text, color: color));
+    game.add(_NumberPopup(position: position, text: text, color: color));
   }
 
   // Private generators

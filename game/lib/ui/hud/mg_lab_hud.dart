@@ -4,7 +4,6 @@ import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:mg_common_game/core/ui/typography/mg_text_styles.dart';
 import 'package:mg_common_game/core/ui/widgets/buttons/mg_button.dart';
 import 'package:mg_common_game/core/ui/widgets/progress/mg_progress.dart';
-import 'package:mg_common_game/core/ui/widgets/hud/resource_bar.dart';
 
 /// MG-0014 Lab Game HUD
 /// 실험실 액션 게임용 HUD - HP, 스킬 게이지, 스테이지 정보 표시

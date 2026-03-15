@@ -18,9 +18,9 @@ class SynergyManager extends ChangeNotifier {
 
       // Log synergy changes
       if (_activeSynergies.isNotEmpty) {
-        print('🌟 Active Synergies (${_activeSynergies.length}):');
+        debugPrint('🌟 Active Synergies (${_activeSynergies.length}):');
         for (final syn in _activeSynergies) {
-          print('  - ${syn.nameKr}: ${syn.description}');
+          debugPrint('  - ${syn.nameKr}: ${syn.description}');
         }
       }
     }

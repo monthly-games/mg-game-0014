@@ -181,7 +181,7 @@ class _AchievementScreenState extends State<AchievementScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.emoji_events_rounded,
                       size: MGIcons.badgeSize,
                       color: MGColors.gold,
@@ -458,7 +458,7 @@ class _AchievementScreenState extends State<AchievementScreen>
               ),
               if (isUnlocked) ...[
                 MGSpacing.vXxs,
-                Icon(
+                const Icon(
                   Icons.check_circle_rounded,
                   size: MGIcons.badgeSize,
                   color: MGColors.success,

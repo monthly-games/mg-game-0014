@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
-class EnemyComponent extends PositionComponent with HasGameRef {
+class EnemyComponent extends PositionComponent with HasGameReference {
   late double hp;
   final double maxHp;
   final double damage;
@@ -42,9 +42,9 @@ class EnemyComponent extends PositionComponent with HasGameRef {
   Future<void> onLoad() async {
     await super.onLoad();
     try {
-      _sprite = await gameRef.loadSprite('enemy_lab_monster.png');
+      _sprite = await game.loadSprite('enemy_lab_monster.png');
     } catch (e) {
-      print('Failed to load enemy sprite: $e');
+      debugPrint('Failed to load enemy sprite: $e');
     }
   }
 

@@ -140,7 +140,7 @@ class LabGame extends FlameGame {
         enemyData.baseHp * pow(1.2, stage - 1); // 20% increase per stage
     final enemyDmg = enemyData.baseDmg * pow(1.1, stage - 1); // 10% increase
 
-    print(
+    debugPrint(
       "Spawning ${enemyData.name} (HP: ${enemyHp.toInt()}, DMG: ${enemyDmg.toInt()})",
     );
 
@@ -158,7 +158,7 @@ class LabGame extends FlameGame {
         }
       },
       onDeath: () {
-        print("Enemy Slain!");
+        debugPrint("Enemy Slain!");
         stageManager.onEnemyDefeated();
 
         // Show reward screen after delay

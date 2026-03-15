@@ -1,14 +1,7 @@
 import 'package:mg_common_game/mg_common_game.dart' hide CraftingManager;
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:mg_common_game/systems/progression/achievement_manager.dart';
-import 'package:mg_common_game/systems/quests/daily_quest.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mg_common_game/core/audio/audio_manager.dart';
-import 'package:mg_common_game/core/systems/save_manager_helper.dart';
-import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
-import 'package:mg_common_game/systems/progression/upgrade_manager.dart';
 import 'features/draft/draft_manager.dart';
 import 'game/crafting_manager.dart';
 import 'game/recipe_manager.dart';

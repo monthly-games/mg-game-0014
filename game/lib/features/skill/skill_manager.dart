@@ -118,7 +118,7 @@ class SkillManager extends ChangeNotifier {
     if (isCrit &&
         (skill.type == SkillType.damage || skill.type == SkillType.aoe)) {
       effectValue *= 2.0;
-      print('💥 CRITICAL HIT! ${effectValue.toInt()} damage');
+      debugPrint('💥 CRITICAL HIT! ${effectValue.toInt()} damage');
     }
 
     // Apply skill effect
@@ -131,7 +131,7 @@ class SkillManager extends ChangeNotifier {
         if (lifeSteal > 0) {
           final healAmount = effectValue * lifeSteal;
           player.takeDamage(-healAmount);
-          print('💉 Life steal: ${healAmount.toInt()} HP');
+          debugPrint('💉 Life steal: ${healAmount.toInt()} HP');
         }
         break;
       case SkillType.heal:

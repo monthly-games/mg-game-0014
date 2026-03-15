@@ -45,7 +45,7 @@ class StageManager extends ChangeNotifier {
     _gameState = GameState.victory;
     notifyListeners();
 
-    print('🏆 Stage $currentStage cleared! Total kills: $_totalKills');
+    debugPrint('🏆 Stage $currentStage cleared! Total kills: $_totalKills');
   }
 
   /// Called when player dies
@@ -53,7 +53,7 @@ class StageManager extends ChangeNotifier {
     _gameState = GameState.defeat;
     notifyListeners();
 
-    print('💀 Game Over! Reached stage $currentStage with $_totalKills kills');
+    debugPrint('💀 Game Over! Reached stage $currentStage with $_totalKills kills');
   }
 
   /// Proceed to next stage after reward selection
@@ -62,7 +62,7 @@ class StageManager extends ChangeNotifier {
     _gameState = GameState.playing;
     notifyListeners();
 
-    print('📈 Advancing to stage $_currentStage');
+    debugPrint('📈 Advancing to stage $_currentStage');
   }
 
   /// Show reward selection screen
@@ -78,7 +78,7 @@ class StageManager extends ChangeNotifier {
     _gameState = GameState.playing;
     notifyListeners();
 
-    print('🔄 New run started!');
+    debugPrint('🔄 New run started!');
   }
 
   /// Check if in active gameplay

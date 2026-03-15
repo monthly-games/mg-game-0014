@@ -3,7 +3,7 @@ import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 import 'grid_manager.dart';
 
-class TileComponent extends PositionComponent with TapCallbacks, HasGameRef {
+class TileComponent extends PositionComponent with TapCallbacks, HasGameReference {
   final int row;
   final int col;
   final TileType type;
@@ -28,9 +28,9 @@ class TileComponent extends PositionComponent with TapCallbacks, HasGameRef {
     await super.onLoad();
     if (type != TileType.empty) {
       try {
-        _sprite = await gameRef.loadSprite('tile_${type.name}.png');
+        _sprite = await game.loadSprite('tile_${type.name}.png');
       } catch (e) {
-        print('Failed to load tile sprite for $type: $e');
+        debugPrint('Failed to load tile sprite for $type: $e');
       }
     }
   }

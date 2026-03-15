@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../features/player/player_data.dart';
 import '../features/stage/stage_manager.dart';
 import '../features/skill/skill_manager.dart';
+import 'package:flutter/foundation.dart';
 
 class RunSaveManager {
   final PlayerData playerData;
@@ -29,7 +30,7 @@ class RunSaveManager {
     };
 
     await prefs.setString(_storageKey, jsonEncode(data));
-    print('💾 Run saved successfully.');
+    debugPrint('💾 Run saved successfully.');
   }
 
   /// Load run state
@@ -47,10 +48,10 @@ class RunSaveManager {
       stageManager.load(data['stage']);
       skillManager.load(data['skills']);
 
-      print('📂 Run loaded successfully.');
+      debugPrint('📂 Run loaded successfully.');
       return true;
     } catch (e) {
-      print('❌ Failed to load run: $e');
+      debugPrint('❌ Failed to load run: $e');
       return false;
     }
   }

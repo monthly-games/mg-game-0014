@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../skill_manager.dart';
 import '../skill_data.dart';
 import '../../puzzle/grid_manager.dart';
