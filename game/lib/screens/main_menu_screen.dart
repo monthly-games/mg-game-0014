@@ -117,7 +117,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     label: 'CONTINUE EXPERIMENT',
                     color: MGColors.success,
                     onPressed: () {
-                      Navigator.of(context).pushReplacement(
+    Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           builder: (_) => const GameScreen(),
                         ),
@@ -157,10 +157,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
   }
 
-  Future<void> _startNewGame(BuildContext context) async {
+  Future<void> _startNewGame(BuildContext ctx) async {
     if (_hasSave) {
       final confirm = await showDialog<bool>(
-        context: context,
+        context: ctx,
         builder: (context) => AlertDialog(
           title: const Text('Start New Experiment?'),
           content: const Text('This will discard your current progress.'),
