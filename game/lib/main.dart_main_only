@@ -1,0 +1,20 @@
+
+void main() {
+  runApp(const TowerDefenseApp());
+}
+
+class TowerDefenseApp extends StatelessWidget {
+  const TowerDefenseApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Tower Defense',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: const LobbyScreen(),
+    );
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"C:\\\\Users\\\\USER-5\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\D--mg-games\\\\48628d99-a98d-4a6b-a0a8-285a8087cdd3\\\\tasks\\\\bp3sd7b0q.output\"}",
+  "error": "File content (1.7MB) exceeds maximum allowed size (256KB). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
+  "timestamp": "2026-04-12T10:52:44.958Z",
+  "retry_count": 1
+}
