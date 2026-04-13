@@ -1,5 +1,5 @@
 // ============================================================
-// Gacha Screen — MG-0014 Witch's Lab: Experimental Puzzle
+// Gacha Screen -- MG-0014 Witch's Lab: Experimental Puzzle
 // Genre: RPG (PvP Arena Fighter) · Retention System UI
 //
 // Firebase Analytics Events:
@@ -10,6 +10,8 @@
 //
 // Template: Based on MG-0013 canonical template.
 // ============================================================
+import 'package:mg_common_game/core/localization/localization.dart';
+
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -181,7 +183,7 @@ class _GachaScreenState extends State<GachaScreen>
                 Padding(
                   padding: const EdgeInsets.all(MGSpacing.lg),
                   child: MGButton(
-                    label: 'OK',
+                    label: 'Collect',
                     onPressed: _dismissResults,
                     size: MGButtonSize.large,
                     width: double.infinity,
@@ -647,6 +649,7 @@ class _GachaScreenState extends State<GachaScreen>
       GachaRarity.superRare => MGColors.epic,
       GachaRarity.ultraRare => MGColors.legendary,
       GachaRarity.legendary => MGColors.mythic,
+      GachaRarity.superRare => MGColors.mythic,
     };
   }
 

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
+import 'package:flutter/material.dart';import 'package:mg_common_game/core/localization/localization.dart';
+
 
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
@@ -47,7 +49,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.shield),
-                title: const Text('Guild War'),
+                title: Text('Guild War'),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.of(context).pushNamed('/guild-war');
@@ -63,7 +65,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.celebration),
-                title: const Text('Seasonal Event'),
+                title: Text('Seasonal Event'),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.of(context).pushNamed('/seasonal-event');
@@ -102,7 +104,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: MGSpacing.lg),
                 const Text(
                   'Experimental Puzzle',
                   style: TextStyle(
@@ -114,7 +116,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 const SizedBox(height: 80),
                 if (_hasSave) ...[
                   _MenuButton(
-                    label: 'CONTINUE EXPERIMENT',
+                    label: 'Continue',
                     color: MGColors.success,
                     onPressed: () {
     Navigator.of(context).pushReplacement(
@@ -124,16 +126,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: MGSpacing.lg),
                 ],
                 _MenuButton(
                   label: _hasSave ? 'NEW EXPERIMENT' : 'START EXPERIMENT',
                   color: Colors.purple,
                   onPressed: () => _startNewGame(context),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: MGSpacing.lg),
                 _MenuButton(
-                  label: 'RESEARCH LAB',
+                  label: 'Research Lab',
                   color: Colors.cyan[800]!,
                   onPressed: () {
                     Navigator.of(context).push(
@@ -143,9 +145,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: MGSpacing.lg),
                 const _MenuButton(
-                  label: 'SETTINGS',
+                  label: 'Coming Soon',
                   color: Colors.blueGrey,
                   onPressed: null,
                 ),
@@ -162,8 +164,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       final confirm = await showDialog<bool>(
         context: ctx,
         builder: (context) => AlertDialog(
-          title: const Text('Start New Experiment?'),
-          content: const Text('This will discard your current progress.'),
+          title: Text('New Experiment'),
+          content: Text('This will discard your current progress'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -171,7 +173,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Discard & Start'),
+              child: Text('Discard'),
             ),
           ],
         ),

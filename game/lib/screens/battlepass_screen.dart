@@ -1,6 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages, unused_local_variable
 // ============================================================
-// BattlePass Screen — MG-0014 Witch's Lab: Experimental Puzzle
+// BattlePass Screen -- MG-0014 Witch's Lab: Experimental Puzzle
 // Genre: Puzzle · Retention System UI
 //
 // Firebase Analytics Events:
@@ -12,6 +12,8 @@
 //
 // Template: Based on MG-0008 canonical template.
 // ============================================================
+import 'package:mg_common_game/core/localization/localization.dart';
+
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -162,7 +164,7 @@ class _BattlePassScreenState extends State<BattlePassScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${rewards.length} rewards claimed!'),
+            content: Text('Claimed ${rewards.length} rewards'),
             backgroundColor: MGColors.success,
             duration: const Duration(seconds: 2),
           ),

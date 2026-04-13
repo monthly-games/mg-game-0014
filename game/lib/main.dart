@@ -1,5 +1,9 @@
-import 'package:mg_common_game/mg_common_game.dart' hide CraftingManager;
+import 'package:mg_common_game/systems/progression/achievement_manager.dart';
+
 import 'package:flutter/material.dart';
+import 'package:mg_common_game/mg_common_game.dart' hide CraftingManager;
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import 'features/draft/draft_manager.dart';
@@ -11,12 +15,10 @@ import 'screens/daily_quest_screen.dart';
 import 'screens/achievement_screen.dart';
 import 'screens/battlepass_screen.dart';
 import 'screens/gacha_screen.dart';
-import 'screens/collection_screen.dart';
-import 'game/tutorial_config.dart';
-import 'game/balancing_config.dart';
+import '../firebase_options.dart';
 
 // ============================================================
-// Witch's Lab — MG-0014
+// Witch's Lab -- MG-0014
 // Genre: Puzzle (Crafting / Alchemy focus)
 // Region: Africa
 // Phase 1 Week 4: Mechanic Enhancement
@@ -27,6 +29,35 @@ import 'game/balancing_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase Core
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase Core initialized successfully');
+  } catch (e) {
+    print('Failed to initialize Firebase Core: $e');
+  }
+
+  // Initialize Firebase Remote Config
+  try {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setDefaults({
+      'feature_iap_enabled': true,
+      'feature_new_ui_enabled': false,
+      'feature_daily_rewards_enabled': true,
+      'feature_tutorial_enabled': true,
+      'feature_battlepass': true,
+      'feature_gacha': true,
+      'min_app_version': '1.0.0',
+    });
+    await remoteConfig.fetchAndActivate();
+    print('Remote Config initialized successfully');
+  } catch (e) {
+    print('Failed to initialize Remote Config: $e');
+  }
+
   await _initializeSystems();
 
   // Unified Persistence
@@ -44,60 +75,34 @@ void main() async {
   _applyUpgradeEffects(upgradeManager);
 
   // DailyQuest 시스템
-  if (!GetIt.I.isRegistered<DailyQuestManager>()) {
-    GetIt.I.registerSingleton(DailyQuestManager());
-  }
+  GetIt.I.registerSingleton(DailyQuestManager());
   // Achievement 시스템
-  if (!GetIt.I.isRegistered<AchievementManager>()) {
-    GetIt.I.registerSingleton(AchievementManager());
-  }
+  GetIt.I.registerSingleton(AchievementManager());
   // Collection 시스템
   if (!GetIt.I.isRegistered<CollectionManager>()) {
     GetIt.I.registerSingleton(CollectionManager());
     _registerCollections();
   }
 
-  // ── P3 Engine Systems ─────────────────────────────────────
-  if (!GetIt.I.isRegistered<GuildWarManager>()) {
-    GetIt.I.registerSingleton(GuildWarManager());
+  // BattlePass 시스템
+  if (!GetIt.I.isRegistered<BattlePassManager>()) {
+    GetIt.I.registerSingleton(BattlePassManager());
   }
-  if (!GetIt.I.isRegistered<TournamentManager>()) {
-    GetIt.I.registerSingleton(TournamentManager());
-  }
-  if (!GetIt.I.isRegistered<SeasonalContentManager>()) {
-    GetIt.I.registerSingleton(SeasonalContentManager());
+
+  // Gacha 시스템
+  if (!GetIt.I.isRegistered<GachaManager>()) {
+    GetIt.I.registerSingleton(GachaManager());
   }
 
   _registerAchievements();
   _registerDailyQuests();
-  // ── Tutorial & Balancing ──────────────────────────────────
-  if (!GetIt.I.isRegistered<TutorialManager>()) {
-    final tutorialManager = TutorialManager();
-    await tutorialManager.initialize();
-    tutorialManager.registerTutorial(
-      kOnboardingTutorial.id,
-      kOnboardingTutorial.steps,
-    );
-    GetIt.I.registerSingleton<TutorialManager>(tutorialManager);
-  }
-  if (!GetIt.I.isRegistered<BalancingManager>()) {
-    GetIt.I.registerSingleton<BalancingManager>(
-      BalancingManager(defaultConfig: kDefaultBalancingConfig),
-    );
-  }
-  // ── Q7 DI Fix: Missing Systems ──────────────────────────
-  if (!GetIt.I.isRegistered<BattlePassManager>()) {
-    GetIt.I.registerSingleton<BattlePassManager>(BattlePassManager());
-  }
-  if (!GetIt.I.isRegistered<GachaManager>()) {
-    GetIt.I.registerSingleton<GachaManager>(GachaManager());
-  }
-
+  _setupBattlePass();
+  _setupGacha();
   runApp(const WitchLabApp());
 }
 
 // ============================================================
-// System Initialization — DI registration in dependency order
+// System Initialization -- DI registration in dependency order
 // ============================================================
 
 /// Initialize all DI-registered systems in correct dependency order.
@@ -129,21 +134,10 @@ Future<void> _initializeSystems() async {
   if (!di.isRegistered<PotionManager>()) {
     di.registerSingleton<PotionManager>(PotionManager());
   }
-
-  // ── Retention Systems for DailyHub ────────────────────────
-  if (!di.isRegistered<LoginRewardsManager>()) {
-    di.registerSingleton(LoginRewardsManager());
-  }
-  if (!di.isRegistered<StreakManager>()) {
-    di.registerSingleton(StreakManager());
-  }
-  if (!di.isRegistered<DailyChallengeManager>()) {
-    di.registerSingleton(DailyChallengeManager());
-  }
 }
 
 // ============================================================
-// Upgrade Registration — 8 witch-lab upgrades
+// Upgrade Registration -- 8 witch-lab upgrades
 // Categories: Crafting (3), Recipe (2), Potion (3)
 // ============================================================
 
@@ -236,7 +230,7 @@ void _registerWitchLabUpgrades(UpgradeManager manager) {
 }
 
 // ============================================================
-// Upgrade Effect Application — syncs upgrade state to managers
+// Upgrade Effect Application -- syncs upgrade state to managers
 // ============================================================
 
 /// Applies current upgrade levels to runtime managers.
@@ -250,7 +244,7 @@ void _applyUpgradeEffects(UpgradeManager upgradeManager) {
   final potionManager = GetIt.I<PotionManager>();
 
   // Log current upgrade state for debugging
-  debugPrint('[WitchLab] Upgrades loaded — '
+  debugPrint('[WitchLab] Upgrades loaded -- '
       'craftSpeed=${craftingManager.craftSpeedMultiplier.toStringAsFixed(2)}, '
       'matEff=${craftingManager.materialEfficiency.toStringAsFixed(2)}, '
       'batch=${craftingManager.maxBatchSize}, '
@@ -262,7 +256,7 @@ void _applyUpgradeEffects(UpgradeManager upgradeManager) {
 }
 
 // ============================================================
-// App Root — MultiProvider wraps all game state
+// App Root -- MultiProvider wraps all game state
 // ============================================================
 
 class WitchLabApp extends StatelessWidget {
@@ -290,34 +284,7 @@ class WitchLabApp extends StatelessWidget {
           '/achievement': (_) => const AchievementScreen(),
           '/battlepass': (_) => const BattlePassScreen(),
           '/gacha': (_) => const GachaScreen(),
-        '/daily-hub': (context) => DailyHubScreen(
-          questManager: GetIt.I<DailyQuestManager>(),
-          loginRewardsManager: GetIt.I<LoginRewardsManager>(),
-          streakManager: GetIt.I<StreakManager>(),
-          challengeManager: GetIt.I<DailyChallengeManager>(),
-          accentColor: MGColors.primaryAction,
-          onClose: () => Navigator.pop(context),
-        ),
-        
-          '/collection': (context) => CollectionScreen(
-            collectionManager: GetIt.I<CollectionManager>(),
-          ),
-          '/guild-war': (context) => GuildWarScreen(
-            guildWarManager: GetIt.I<GuildWarManager>(),
-            accentColor: MGColors.primaryAction,
-            onClose: () => Navigator.pop(context),
-            ),
-          '/tournament': (context) => TournamentScreen(
-            tournamentManager: GetIt.I<TournamentManager>(),
-            accentColor: MGColors.primaryAction,
-            onClose: () => Navigator.pop(context),
-            ),
-          '/seasonal-event': (context) => SeasonalEventScreen(
-            seasonalContentManager: GetIt.I<SeasonalContentManager>(),
-            accentColor: MGColors.primaryAction,
-            onClose: () => Navigator.pop(context),
-            ),
-},
+        },
       ),
     );
   }
@@ -355,7 +322,7 @@ class WitchLabApp extends StatelessWidget {
       dividerColor: Colors.white24,
       snackBarTheme: SnackBarThemeData(
         backgroundColor: const Color(0xFF3a0050),
-        contentTextStyle: const TextStyle(color: MGColors.textHighEmphasis),
+        contentTextStyle: const TextStyle(color: Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -365,7 +332,7 @@ class WitchLabApp extends StatelessWidget {
 }
 
 // ============================================================
-// Upgrade Display Widget — shows upgrade tiles for the shop UI
+// Upgrade Display Widget -- shows upgrade tiles for the shop UI
 // ============================================================
 
 /// A reusable upgrade tile for listing purchasable upgrades.
@@ -443,7 +410,7 @@ class UpgradeTileWidget extends StatelessWidget {
                   Text(
                     upgrade.name,
                     style: const TextStyle(
-                      color: MGColors.textHighEmphasis,
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -477,7 +444,7 @@ class UpgradeTileWidget extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       canAfford ? Colors.purpleAccent : Colors.grey[800],
-                  foregroundColor: MGColors.textHighEmphasis,
+                  foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
@@ -494,7 +461,7 @@ class UpgradeTileWidget extends StatelessWidget {
 }
 
 // ============================================================
-// Upgrade List Widget — groups upgrades by category
+// Upgrade List Widget -- groups upgrades by category
 // ============================================================
 
 /// Displays all registered upgrades grouped into Crafting / Recipe / Potion
@@ -577,30 +544,30 @@ class UpgradeListWidget extends StatelessWidget {
 
 void _registerDailyQuests() {
   final dailyQuest = GetIt.I<DailyQuestManager>();
-  
+
   dailyQuest.registerQuest(DailyQuest(
-    id: 'collect_gold',
-    title: '골드 모으기',
-    description: '골드 1000 획득',
-    targetValue: 1000,
+    id: 'craft_potions',
+    title: '포션 제조',
+    description: '포션 5개 제조',
+    targetValue: 5,
     goldReward: 500,
     xpReward: 10,
   ));
-  
+
   dailyQuest.registerQuest(DailyQuest(
-    id: 'play_games',
-    title: '게임 플레이',
-    description: '게임 5판 플레이',
-    targetValue: 5,
+    id: 'collect_ingredients',
+    title: '재료 수집',
+    description: '희귀 재료 10개 수집',
+    targetValue: 10,
     goldReward: 300,
     xpReward: 5,
   ));
-  
+
   dailyQuest.registerQuest(DailyQuest(
-    id: 'level_up',
-    title: '레벨업',
-    description: '레벨 1 상승',
-    targetValue: 1,
+    id: 'research_recipes',
+    title: '레시피 연구',
+    description: '새 레시피 3개 발견',
+    targetValue: 3,
     goldReward: 200,
     xpReward: 3,
   ));
@@ -640,32 +607,32 @@ void _registerCollections() {
     id: 'characters',
     name: '캐릭터',
     description: '모든 캐릭터를 수집하세요',
-    items: [
-      const CollectionItem(
+    items: const [
+      CollectionItem(
         id: 'char_warrior',
         name: '전사',
         description: '강인한 근접 전투 캐릭터',
         rarity: CollectionRarity.common,
       ),
-      const CollectionItem(
+      CollectionItem(
         id: 'char_mage',
         name: '마법사',
         description: '강력한 마법 공격 캐릭터',
         rarity: CollectionRarity.rare,
       ),
-      const CollectionItem(
+      CollectionItem(
         id: 'char_archer',
         name: '궁수',
         description: '원거리 정밀 공격 캐릭터',
         rarity: CollectionRarity.rare,
       ),
-      const CollectionItem(
+      CollectionItem(
         id: 'char_assassin',
         name: '암살자',
         description: '치명적인 은신 공격 캐릭터',
         rarity: CollectionRarity.epic,
       ),
-      const CollectionItem(
+      CollectionItem(
         id: 'char_healer',
         name: '힐러',
         description: '팀을 치유하는 지원 캐릭터',
@@ -673,10 +640,10 @@ void _registerCollections() {
       ),
     ],
     completionReward: const CollectionReward(type: RewardType.gold, amount: 10000),
-    milestoneRewards: {
-      25: const CollectionReward(type: RewardType.gold, amount: 1000),
-      50: const CollectionReward(type: RewardType.gold, amount: 3000),
-      75: const CollectionReward(type: RewardType.gold, amount: 5000),
+    milestoneRewards: const {
+      25: CollectionReward(type: RewardType.gold, amount: 1000),
+      50: CollectionReward(type: RewardType.gold, amount: 3000),
+      75: CollectionReward(type: RewardType.gold, amount: 5000),
     },
   ));
 
@@ -685,4 +652,67 @@ void _registerCollections() {
     // SettingsManager가 등록되어 있으면 햅틱 피드백
     debugPrint('Collection item unlocked: $collectionId / $itemId');
   };
+}
+
+void _setupBattlePass() {
+  final bp = GetIt.I<BattlePassManager>();
+
+  final season = BPSeasonBuilder.create28DaySeason(
+    id: 'season_1',
+    nameKr: '시즌 1',
+    startDate: DateTime.now().subtract(const Duration(days: 1)),
+    maxLevel: 50,
+    expPerLevel: 1000,
+  );
+
+  bp.setSeason(season);
+  bp.setMissions(
+    daily: BPSeasonBuilder.createDefaultDailyMissions(),
+    weekly: BPSeasonBuilder.createDefaultWeeklyMissions(),
+  );
+}
+
+void _setupGacha() {
+  final gacha = GetIt.I<GachaManager>();
+
+  gacha.registerPool(GachaPool(
+    id: 'standard_pool',
+    nameKr: '스탠다드 뽑기',
+    items: [
+      // N (50%)
+      ...List.generate(20, (i) => GachaItem(
+        id: 'n_item_$i',
+        nameKr: '일단 아이템 $i',
+        rarity: GachaRarity.normal,
+      )),
+
+      // R (35%)
+      ...List.generate(10, (i) => GachaItem(
+        id: 'r_item_$i',
+        nameKr: '레어 아이템 $i',
+        rarity: GachaRarity.rare,
+      )),
+
+      // SR (12%)
+      ...List.generate(5, (i) => GachaItem(
+        id: 'sr_item_$i',
+        nameKr: '슈퍼레어 아이템 $i',
+        rarity: GachaRarity.superRare,
+      )),
+
+      // SSR (2.7%)
+      GachaItem(
+        id: 'ssr_item_1',
+        nameKr: '울트라레어 아이템 1',
+        rarity: GachaRarity.ultraRare,
+      ),
+
+      // UR (0.3%)
+      GachaItem(
+        id: 'ur_item_1',
+        nameKr: '레전더리 아이템 1',
+        rarity: GachaRarity.legendary,
+      ),
+    ],
+  ));
 }

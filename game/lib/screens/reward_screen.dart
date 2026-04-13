@@ -1,3 +1,4 @@
+import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:flutter/material.dart';
 import '../features/stage/stage_manager.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
@@ -20,7 +21,7 @@ class RewardScreen extends StatelessWidget {
       color: Colors.black.withValues(alpha: 0.9),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(MGSpacing.lg),
           constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -34,12 +35,12 @@ class RewardScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: MGSpacing.xs),
               const Text(
                 '보상을 선택하세요',
                 style: TextStyle(color: Colors.white70, fontSize: 18),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: MGSpacing.xl),
 
               // Reward cards
               ...rewards.map(
@@ -77,7 +78,7 @@ class RewardScreen extends StatelessWidget {
     return InkWell(
       onTap: () => onSelect(reward),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MGSpacing.mdLg),
         decoration: BoxDecoration(
           color: cardColor.withValues(alpha: 0.2),
           border: Border.all(color: cardColor, width: 2),
@@ -95,7 +96,7 @@ class RewardScreen extends StatelessWidget {
               ),
               child: Icon(icon, size: 36, color: MGColors.textHighEmphasis),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: MGSpacing.md),
 
             // Text
             Expanded(
@@ -110,7 +111,7 @@ class RewardScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: MGSpacing.xxs),
                   Text(
                     reward.description,
                     style: const TextStyle(color: Colors.white70, fontSize: 14),

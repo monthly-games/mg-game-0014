@@ -1,6 +1,8 @@
+import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:flutter/material.dart';
 import '../features/meta/meta_manager.dart';
-import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';import 'package:mg_common_game/core/localization/localization.dart';
+
 
 class ResearchScreen extends StatefulWidget {
   const ResearchScreen({super.key});
@@ -15,7 +17,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF1a0022),
       appBar: AppBar(
-        title: const Text("RESEARCH LAB"),
+        title: Text('Research Lab'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -27,12 +29,12 @@ class _ResearchScreenState extends State<ResearchScreen> {
             children: [
               // Header (RP Display)
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(MGSpacing.lg),
                 decoration: BoxDecoration(
                   color: Colors.black45,
                   borderRadius: BorderRadius.circular(15),
                 ),
-                margin: const EdgeInsets.all(16),
+                margin: const EdgeInsets.all(MGSpacing.md),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -41,7 +43,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
                       color: Colors.cyanAccent,
                       size: 32,
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: MGSpacing.sm),
                     Text(
                       "${mm.researchPoints} RP",
                       style: const TextStyle(
@@ -59,7 +61,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
               // Upgrade Tree (Simple List for now)
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MGSpacing.md),
                   children: [
                     _buildNode(
                       id: "hp_1",
@@ -99,7 +101,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
 
               // Debug Buttons
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(MGSpacing.xs),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -171,7 +173,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
                 onPressed: canAfford
                     ? () => mm.purchaseUpgrade(id, cost)
                     : null,
-                child: Text("$cost RP"),
+                child: Text('Cost: RP'),
               ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:flutter/material.dart';
 import '../features/skill/ui/skill_hud.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,8 @@ import '../game/overlays/tutorial_overlay.dart';
 import '../features/draft/draft_manager.dart';
 import '../features/skill/skill_model.dart';
 import '../systems/tutorial_manager.dart';
-import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';import 'package:mg_common_game/core/localization/localization.dart';
+
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -72,7 +74,7 @@ class _GameScreenState extends State<GameScreen> {
                 _game.resetGame();
                 _game.resumeEngine();
               },
-              child: const Text("Restart Experiment"),
+              child: Text(''),
             ),
             TextButton(
               onPressed: () {
@@ -152,7 +154,7 @@ class _GameScreenState extends State<GameScreen> {
                   children: [
                     // Header
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(MGSpacing.md),
                       child: Row(
                         children: [
                           const Expanded(
@@ -237,7 +239,7 @@ class _GameScreenState extends State<GameScreen> {
     int poison = dm.mySkills.where((s) => s.type == SynergyType.poison).length;
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(MGSpacing.xs),
       color: Colors.black54,
       child: Column(
         children: [
@@ -249,7 +251,7 @@ class _GameScreenState extends State<GameScreen> {
               _buildSynergyBadge(SynergyType.poison, poison),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: MGSpacing.sm),
           SizedBox(
             height: 64,
             child: ListView.builder(
@@ -327,7 +329,7 @@ class _GameScreenState extends State<GameScreen> {
                       width: 64,
                       height: 64,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: MGSpacing.sm),
                     Text(
                       skill.name,
                       style: const TextStyle(

@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mg_common_game/systems/progression/upgrade_manager.dart';
 
 // ============================================================
-// CraftingManager — Witch's Lab ingredient crafting system
+// CraftingManager -- Witch's Lab ingredient crafting system
 //
 // Manages the cauldron crafting queue, material inventory, and
 // applies upgrade effects: crafting_speed, material_efficiency,

@@ -1,3 +1,4 @@
+import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
@@ -19,7 +20,7 @@ class GameOverScreen extends StatelessWidget {
       color: Colors.black.withValues(alpha: 0.95),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(MGSpacing.xl),
           constraints: const BoxConstraints(maxWidth: 500),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -30,7 +31,7 @@ class GameOverScreen extends StatelessWidget {
                 size: 80,
                 color: MGColors.error,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MGSpacing.md),
 
               // Title
               const Text(
@@ -42,16 +43,16 @@ class GameOverScreen extends StatelessWidget {
                   letterSpacing: 4,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: MGSpacing.xl),
 
               // Stats
               _buildStatRow('최종 스테이지', '$finalStage'),
-              const SizedBox(height: 12),
+              const SizedBox(height: MGSpacing.sm),
               _buildStatRow('처치한 적', '$totalKills'),
-              const SizedBox(height: 12),
+              const SizedBox(height: MGSpacing.sm),
               _buildStatRow('생존 시간', _getPlayTime()),
 
-              const SizedBox(height: 48),
+              const SizedBox(height: MGSpacing.xxl),
 
               // Restart button
               ElevatedButton(
@@ -71,7 +72,7 @@ class GameOverScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.refresh, size: 28),
-                    SizedBox(width: 12),
+                    SizedBox(width: MGSpacing.sm),
                     Text(
                       '다시 시작',
                       style: TextStyle(

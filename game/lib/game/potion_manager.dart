@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mg_common_game/systems/progression/upgrade_manager.dart';
 
 // ============================================================
-// PotionManager — Witch's Lab potion brewing & effects system
+// PotionManager -- Witch's Lab potion brewing & effects system
 //
 // Tracks brewed potions, active effects, and applies upgrade
 // bonuses: potion_potency, effect_duration, special_chance.
@@ -86,7 +86,7 @@ class PotionManager extends ChangeNotifier {
     return 1.0 + (upgrade?.currentValue ?? 0.0);
   }
 
-  /// Chance to trigger a special effect (0.0 – 1.0).
+  /// Chance to trigger a special effect (0.0 - 1.0).
   double get specialChance {
     final upgrade = _upgradeManager.getUpgrade('special_chance');
     return (upgrade?.currentValue ?? 0.0).clamp(0.0, 1.0);

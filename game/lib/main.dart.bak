@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mg_common_game/systems/systems.dart';
+import 'package:mg_common_game/mg_common_game.dart' hide CraftingManager;
 import 'package:mg_common_game/systems/progression/achievement_manager.dart';
 import 'package:mg_common_game/systems/quests/daily_quest.dart';
+import 'package:mg_common_game/systems/collection/reward_type.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mg_common_game/core/audio/audio_manager.dart';
 import 'package:mg_common_game/core/systems/save_manager_helper.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 import 'package:mg_common_game/systems/progression/upgrade_manager.dart';
+import 'package:mg_common_game/l10n/extensions.dart';
 import 'features/draft/draft_manager.dart';
 import 'game/crafting_manager.dart';
 import 'game/recipe_manager.dart';
@@ -20,7 +22,7 @@ import 'screens/battlepass_screen.dart';
 import 'screens/gacha_screen.dart';
 
 // ============================================================
-// Witch's Lab — MG-0014
+// Witch's Lab -- MG-0014
 // Genre: Puzzle (Crafting / Alchemy focus)
 // Region: Africa
 // Phase 1 Week 4: Mechanic Enhancement
@@ -62,7 +64,7 @@ void main() async {
 }
 
 // ============================================================
-// System Initialization — DI registration in dependency order
+// System Initialization -- DI registration in dependency order
 // ============================================================
 
 /// Initialize all DI-registered systems in correct dependency order.
@@ -97,7 +99,7 @@ Future<void> _initializeSystems() async {
 }
 
 // ============================================================
-// Upgrade Registration — 8 witch-lab upgrades
+// Upgrade Registration -- 8 witch-lab upgrades
 // Categories: Crafting (3), Recipe (2), Potion (3)
 // ============================================================
 
@@ -190,7 +192,7 @@ void _registerWitchLabUpgrades(UpgradeManager manager) {
 }
 
 // ============================================================
-// Upgrade Effect Application — syncs upgrade state to managers
+// Upgrade Effect Application -- syncs upgrade state to managers
 // ============================================================
 
 /// Applies current upgrade levels to runtime managers.
@@ -204,7 +206,7 @@ void _applyUpgradeEffects(UpgradeManager upgradeManager) {
   final potionManager = GetIt.I<PotionManager>();
 
   // Log current upgrade state for debugging
-  debugPrint('[WitchLab] Upgrades loaded — '
+  debugPrint('[WitchLab] Upgrades loaded -- '
       'craftSpeed=${craftingManager.craftSpeedMultiplier.toStringAsFixed(2)}, '
       'matEff=${craftingManager.materialEfficiency.toStringAsFixed(2)}, '
       'batch=${craftingManager.maxBatchSize}, '
@@ -216,7 +218,7 @@ void _applyUpgradeEffects(UpgradeManager upgradeManager) {
 }
 
 // ============================================================
-// App Root — MultiProvider wraps all game state
+// App Root -- MultiProvider wraps all game state
 // ============================================================
 
 class WitchLabApp extends StatelessWidget {
@@ -292,7 +294,7 @@ class WitchLabApp extends StatelessWidget {
 }
 
 // ============================================================
-// Upgrade Display Widget — shows upgrade tiles for the shop UI
+// Upgrade Display Widget -- shows upgrade tiles for the shop UI
 // ============================================================
 
 /// A reusable upgrade tile for listing purchasable upgrades.
@@ -421,7 +423,7 @@ class UpgradeTileWidget extends StatelessWidget {
 }
 
 // ============================================================
-// Upgrade List Widget — groups upgrades by category
+// Upgrade List Widget -- groups upgrades by category
 // ============================================================
 
 /// Displays all registered upgrades grouped into Crafting / Recipe / Potion
@@ -563,11 +565,11 @@ void _registerCollections() {
   final collection = GetIt.I<CollectionManager>();
 
   // Characters 컬렉션
-  collection.registerCollection(const Collection(
+  collection.registerCollection(Collection(
     id: 'characters',
     name: '캐릭터',
     description: '모든 캐릭터를 수집하세요',
-    items: [
+    items: const [
       CollectionItem(
         id: 'char_warrior',
         name: '전사',
@@ -599,11 +601,11 @@ void _registerCollections() {
         rarity: CollectionRarity.legendary,
       ),
     ],
-    completionReward: CollectionReward(gold: 10000, gems: 500, experience: 2000),
-    milestoneRewards: {
-      25: CollectionReward(gold: 1000, gems: 50),
-      50: CollectionReward(gold: 3000, gems: 150),
-      75: CollectionReward(gold: 5000, gems: 300),
+    completionReward: const CollectionReward(type: RewardType.gold, amount: 10000),
+    milestoneRewards: const {
+      25: CollectionReward(type: RewardType.gold, amount: 1000),
+      50: CollectionReward(type: RewardType.gold, amount: 3000),
+      75: CollectionReward(type: RewardType.gold, amount: 5000),
     },
   ));
 

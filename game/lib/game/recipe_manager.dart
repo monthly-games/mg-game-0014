@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mg_common_game/systems/progression/upgrade_manager.dart';
 
 // ============================================================
-// RecipeManager — Witch's Lab recipe/grimoire system
+// RecipeManager -- Witch's Lab recipe/grimoire system
 //
 // Manages discovered recipes, recipe slots, and ingredient
 // substitution flexibility via upgrades: recipe_slots,
@@ -131,7 +131,7 @@ class RecipeManager extends ChangeNotifier {
     return _baseRecipeSlots + (upgrade?.currentValue.toInt() ?? 0);
   }
 
-  /// Ingredient flexibility factor (0.0 – 1.0 range).
+  /// Ingredient flexibility factor (0.0 - 1.0 range).
   /// Allows substituting up to [ingredientFlex]% of required ingredients.
   double get ingredientFlex {
     final upgrade = _upgradeManager.getUpgrade('ingredient_flex');

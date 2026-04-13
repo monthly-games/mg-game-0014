@@ -2,7 +2,7 @@ import 'package:mg_common_game/systems/balancing/balancing.dart';
 
 /// Default balancing configuration for MG-0014: Witch's Lab: Experimental Puzzle.
 ///
-/// Placeholder values — override via RemoteConfig using
+/// Placeholder values -- override via RemoteConfig using
 /// [BalancingManager.loadFromRemote] in production.
 const kDefaultBalancingConfig = BalancingConfig(
   gameId: 'mg-0014',
