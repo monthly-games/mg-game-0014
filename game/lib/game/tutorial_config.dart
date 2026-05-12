@@ -1,11 +1,10 @@
 import 'package:mg_common_game/systems/tutorial/tutorial.dart';
-import 'package:mg_common_game/systems/tutorial/tutorial_data.dart';
 
 /// Tutorial configuration for MG-0014: Witch's Lab: Experimental Puzzle.
 ///
 /// Placeholder tutorial steps -- replace with localized strings
 /// and add targetKey for highlight positioning in production.
-final kOnboardingTutorial = TutorialConfig(
+const kOnboardingTutorial = TutorialConfig(
   id: 'onboarding',
   name: "Witch's Lab: Experimental Puzzle Tutorial",
   skippable: true,

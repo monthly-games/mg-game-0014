@@ -12,9 +12,6 @@
 //
 // Template: Based on MG-0008 canonical template.
 // ============================================================
-import 'package:mg_common_game/core/localization/localization.dart';
-
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

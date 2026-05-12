@@ -1,5 +1,5 @@
 import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
-import 'package:flutter/material.dart';import 'package:mg_common_game/core/localization/localization.dart';
+import 'package:flutter/material.dart';
 
 
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
@@ -49,7 +49,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.shield),
-                title: Text('Guild War'),
+                title: const Text('Guild War'),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.of(context).pushNamed('/guild-war');
@@ -65,7 +65,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.celebration),
-                title: Text('Seasonal Event'),
+                title: const Text('Seasonal Event'),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.of(context).pushNamed('/seasonal-event');
@@ -164,8 +164,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       final confirm = await showDialog<bool>(
         context: ctx,
         builder: (context) => AlertDialog(
-          title: Text('New Experiment'),
-          content: Text('This will discard your current progress'),
+          title: const Text('New Experiment'),
+          content: const Text('This will discard your current progress'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -173,7 +173,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: Text('Discard'),
+              child: const Text('Discard'),
             ),
           ],
         ),

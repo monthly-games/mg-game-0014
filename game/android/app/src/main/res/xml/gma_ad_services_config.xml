@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ad-services-config>
-    <attribution>
-        <include-ad-id value="true"/>
-    </attribution>
+   <attestation>
+       <consent-manager origin="https://google.com"/>
+   </attestation>
 </ad-services-config>

@@ -10,9 +10,6 @@
 //
 // Template: Based on MG-0013 canonical template.
 // ============================================================
-import 'package:mg_common_game/core/localization/localization.dart';
-
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -649,7 +646,6 @@ class _GachaScreenState extends State<GachaScreen>
       GachaRarity.superRare => MGColors.epic,
       GachaRarity.ultraRare => MGColors.legendary,
       GachaRarity.legendary => MGColors.mythic,
-      GachaRarity.superRare => MGColors.mythic,
     };
   }
 

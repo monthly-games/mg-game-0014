@@ -1,7 +1,7 @@
 import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:flutter/material.dart';
 import '../features/meta/meta_manager.dart';
-import 'package:mg_common_game/core/ui/theme/mg_colors.dart';import 'package:mg_common_game/core/localization/localization.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 
 class ResearchScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF1a0022),
       appBar: AppBar(
-        title: Text('Research Lab'),
+        title: const Text('Research Lab'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -173,7 +173,7 @@ class _ResearchScreenState extends State<ResearchScreen> {
                 onPressed: canAfford
                     ? () => mm.purchaseUpgrade(id, cost)
                     : null,
-                child: Text('Cost: RP'),
+                child: const Text('Cost: RP'),
               ),
       ),
     );

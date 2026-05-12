@@ -11,7 +11,7 @@ import '../game/overlays/tutorial_overlay.dart';
 import '../features/draft/draft_manager.dart';
 import '../features/skill/skill_model.dart';
 import '../systems/tutorial_manager.dart';
-import 'package:mg_common_game/core/ui/theme/mg_colors.dart';import 'package:mg_common_game/core/localization/localization.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 
 class GameScreen extends StatefulWidget {
@@ -74,7 +74,7 @@ class _GameScreenState extends State<GameScreen> {
                 _game.resetGame();
                 _game.resumeEngine();
               },
-              child: Text(''),
+              child: const Text(''),
             ),
             TextButton(
               onPressed: () {
