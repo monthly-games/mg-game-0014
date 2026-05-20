@@ -1,718 +1,434 @@
-import 'package:mg_common_game/systems/progression/achievement_manager.dart';
-
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:mg_common_game/mg_common_game.dart' hide CraftingManager;
-import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
-import 'package:get_it/get_it.dart';
-import 'features/draft/draft_manager.dart';
-import 'game/crafting_manager.dart';
-import 'game/recipe_manager.dart';
-import 'game/potion_manager.dart';
-import 'screens/main_menu_screen.dart';
-import 'screens/daily_quest_screen.dart';
-import 'screens/achievement_screen.dart';
-import 'screens/battlepass_screen.dart';
-import 'screens/gacha_screen.dart';
-import '../firebase_options.dart';
+import 'package:game/game/level_design_config.dart';
+import 'package:game/game/wave_spawn_table.dart';
 
-// ============================================================
-// Witch's Lab -- MG-0014
-// Genre: Puzzle (Crafting / Alchemy focus)
-// Region: Africa
-// Phase 1 Week 4: Mechanic Enhancement
-//
-// Core loop: Puzzle → Materials → Craft → Brew Potions → Apply Effects
-// Subsystems: Recipes, Upgrades, Draft skills, Research
-// ============================================================
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Firebase Core
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    print('Firebase Core initialized successfully');
-  } catch (e) {
-    print('Failed to initialize Firebase Core: $e');
-  }
-
-  // Initialize Firebase Remote Config
-  try {
-    final remoteConfig = FirebaseRemoteConfig.instance;
-    await remoteConfig.setDefaults({
-      'feature_iap_enabled': true,
-      'feature_new_ui_enabled': false,
-      'feature_daily_rewards_enabled': true,
-      'feature_tutorial_enabled': true,
-      'feature_battlepass': true,
-      'feature_gacha': true,
-      'min_app_version': '1.0.0',
-    });
-    await remoteConfig.fetchAndActivate();
-    print('Remote Config initialized successfully');
-  } catch (e) {
-    print('Failed to initialize Remote Config: $e');
-  }
-
-  await _initializeSystems();
-
-  // Unified Persistence
-  await SaveManagerHelper.setupSaveManager(
-    autoSaveEnabled: true,
-    autoSaveIntervalSeconds: 30,
-  );
-  await SaveManagerHelper.legacyLoadAll();
-
-  // Load saved upgrade levels
-  final upgradeManager = GetIt.I<UpgradeManager>();
-  await upgradeManager.loadUpgrades();
-
-  // Apply saved upgrades to game managers
-  _applyUpgradeEffects(upgradeManager);
-
-  // DailyQuest 시스템
-  GetIt.I.registerSingleton(DailyQuestManager());
-  // Achievement 시스템
-  GetIt.I.registerSingleton(AchievementManager());
-  // Collection 시스템
-  if (!GetIt.I.isRegistered<CollectionManager>()) {
-    GetIt.I.registerSingleton(CollectionManager());
-    _registerCollections();
-  }
-
-  // BattlePass 시스템
-  if (!GetIt.I.isRegistered<BattlePassManager>()) {
-    GetIt.I.registerSingleton(BattlePassManager());
-  }
-
-  // Gacha 시스템
-  if (!GetIt.I.isRegistered<GachaManager>()) {
-    GetIt.I.registerSingleton(GachaManager());
-  }
-
-  _registerAchievements();
-  _registerDailyQuests();
-  _setupBattlePass();
-  _setupGacha();
-  runApp(const WitchLabApp());
+void main() {
+  runApp(const MyApp());
 }
 
-// ============================================================
-// System Initialization -- DI registration in dependency order
-// ============================================================
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-/// Initialize all DI-registered systems in correct dependency order.
-/// mg_common_game systems first, then game-specific managers.
-Future<void> _initializeSystems() async {
-  final di = GetIt.I;
-
-  // ── mg_common_game core systems ──────────────────────────
-  if (!di.isRegistered<AudioManager>()) {
-    di.registerSingleton<AudioManager>(AudioManager());
-    await di<AudioManager>().initialize();
-  }
-
-  if (!di.isRegistered<UpgradeManager>()) {
-    final upgrades = UpgradeManager();
-    di.registerSingleton<UpgradeManager>(upgrades);
-    _registerWitchLabUpgrades(upgrades);
-  }
-
-  // ── Game-specific managers ───────────────────────────────
-  if (!di.isRegistered<CraftingManager>()) {
-    di.registerSingleton<CraftingManager>(CraftingManager());
-  }
-
-  if (!di.isRegistered<RecipeManager>()) {
-    di.registerSingleton<RecipeManager>(RecipeManager());
-  }
-
-  if (!di.isRegistered<PotionManager>()) {
-    di.registerSingleton<PotionManager>(PotionManager());
-  }
-}
-
-// ============================================================
-// Upgrade Registration -- 8 witch-lab upgrades
-// Categories: Crafting (3), Recipe (2), Potion (3)
-// ============================================================
-
-void _registerWitchLabUpgrades(UpgradeManager manager) {
-  // ── Crafting upgrades (3) ──────────────────────────────────
-
-  manager.registerUpgrade(Upgrade(
-    id: 'crafting_speed',
-    name: 'Swift Mortar',
-    description: 'Reduce ingredient preparation time by 8% per level.',
-    maxLevel: 15,
-    baseCost: 50,
-    costMultiplier: 1.4,
-    valuePerLevel: 0.08,
-  ));
-
-  manager.registerUpgrade(Upgrade(
-    id: 'material_efficiency',
-    name: 'Efficient Extraction',
-    description: 'Increase material yield by 12% per level.',
-    maxLevel: 12,
-    baseCost: 80,
-    costMultiplier: 1.45,
-    valuePerLevel: 0.12,
-  ));
-
-  manager.registerUpgrade(Upgrade(
-    id: 'batch_size',
-    name: 'Cauldron Expansion',
-    description: 'Increase batch crafting capacity by 1 per level.',
-    maxLevel: 8,
-    baseCost: 150,
-    costMultiplier: 1.6,
-    valuePerLevel: 1.0,
-  ));
-
-  // ── Recipe upgrades (2) ────────────────────────────────────
-
-  manager.registerUpgrade(Upgrade(
-    id: 'recipe_slots',
-    name: 'Grimoire Pages',
-    description: 'Unlock additional recipe slots for experimentation.',
-    maxLevel: 10,
-    baseCost: 100,
-    costMultiplier: 1.5,
-    valuePerLevel: 1.0,
-  ));
-
-  manager.registerUpgrade(Upgrade(
-    id: 'ingredient_flex',
-    name: 'Ingredient Intuition',
-    description: 'Allow ingredient substitutions with 10% flexibility per level.',
-    maxLevel: 8,
-    baseCost: 120,
-    costMultiplier: 1.55,
-    valuePerLevel: 0.1,
-  ));
-
-  // ── Potion upgrades (3) ────────────────────────────────────
-
-  manager.registerUpgrade(Upgrade(
-    id: 'potion_potency',
-    name: 'Concentrated Brew',
-    description: 'Boost potion potency by 15% per level.',
-    maxLevel: 10,
-    baseCost: 60,
-    costMultiplier: 1.4,
-    valuePerLevel: 0.15,
-  ));
-
-  manager.registerUpgrade(Upgrade(
-    id: 'effect_duration',
-    name: 'Lasting Enchantment',
-    description: 'Extend potion effect duration by 10% per level.',
-    maxLevel: 10,
-    baseCost: 75,
-    costMultiplier: 1.45,
-    valuePerLevel: 0.1,
-  ));
-
-  manager.registerUpgrade(Upgrade(
-    id: 'special_chance',
-    name: 'Mystic Catalyst',
-    description: 'Increase chance of triggering special potion effects by 5% per level.',
-    maxLevel: 10,
-    baseCost: 200,
-    costMultiplier: 1.6,
-    valuePerLevel: 0.05,
-  ));
-}
-
-// ============================================================
-// Upgrade Effect Application -- syncs upgrade state to managers
-// ============================================================
-
-/// Applies current upgrade levels to runtime managers.
-/// Called after loading saved upgrades so managers reflect persisted state.
-void _applyUpgradeEffects(UpgradeManager upgradeManager) {
-  // Managers read upgrade values dynamically via GetIt<UpgradeManager>,
-  // so notifyListeners propagates state.  This explicit call ensures
-  // any manager that caches derived values refreshes after load.
-  final craftingManager = GetIt.I<CraftingManager>();
-  final recipeManager = GetIt.I<RecipeManager>();
-  final potionManager = GetIt.I<PotionManager>();
-
-  // Log current upgrade state for debugging
-  debugPrint('[WitchLab] Upgrades loaded -- '
-      'craftSpeed=${craftingManager.craftSpeedMultiplier.toStringAsFixed(2)}, '
-      'matEff=${craftingManager.materialEfficiency.toStringAsFixed(2)}, '
-      'batch=${craftingManager.maxBatchSize}, '
-      'recipeSlots=${recipeManager.maxRecipeSlots}, '
-      'ingredientFlex=${recipeManager.ingredientFlex.toStringAsFixed(2)}, '
-      'potency=${potionManager.potencyMultiplier.toStringAsFixed(2)}, '
-      'duration=${potionManager.durationMultiplier.toStringAsFixed(2)}, '
-      'special=${potionManager.specialChance.toStringAsFixed(2)}');
-}
-
-// ============================================================
-// App Root -- MultiProvider wraps all game state
-// ============================================================
-
-class WitchLabApp extends StatelessWidget {
-  const WitchLabApp({super.key});
+  static const gameId = 'MG-0014';
+  static const gameTitle = 'Witch\'s Lab: Experimental Puzzle';
+  static const coreFunLoop = kCoreFunLoop;
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => DraftManager()),
-        ChangeNotifierProvider.value(value: GetIt.I<CraftingManager>()),
-        ChangeNotifierProvider.value(value: GetIt.I<RecipeManager>()),
-        ChangeNotifierProvider.value(value: GetIt.I<PotionManager>()),
-        ChangeNotifierProvider.value(value: GetIt.I<UpgradeManager>()),
-      ],
-      child: MaterialApp(
-        title: "Witch's Lab",
-        debugShowCheckedModeBanner: false,
-        theme: _buildTheme(),
-        home: const MainMenuScreen(),
-        routes: {
-          '/daily-quests': (_) => const DailyQuestScreen(),
-          '/achievements': (_) => const AchievementScreen(),
-          '/daily_quest': (_) => const DailyQuestScreen(),
-          '/achievement': (_) => const AchievementScreen(),
-          '/battlepass': (_) => const BattlePassScreen(),
-          '/gacha': (_) => const GachaScreen(),
-        },
-      ),
-    );
-  }
-
-  /// Witch-lab themed dark mode with purple / gold accents.
-  /// Uses MGColors.gold for Africa-region accent where applicable.
-  ThemeData _buildTheme() {
-    return ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.purple,
-        brightness: Brightness.dark,
-      ),
-      useMaterial3: true,
-      scaffoldBackgroundColor: const Color(0xFF1a0022),
-      primaryColor: Colors.purple,
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-      ),
-      cardTheme: CardThemeData(
-        color: const Color(0xFF2a0038),
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+    return MaterialApp(
+      title: gameTitle,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF3949AB),
+          brightness: Brightness.dark,
         ),
+        useMaterial3: true,
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ),
-      dividerColor: Colors.white24,
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color(0xFF3a0050),
-        contentTextStyle: const TextStyle(color: Colors.white),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
+      routes: {
+        '/game': (_) => const GameScreen(),
+        '/engine': (_) => const FrameLoopScreen(),
+        '/levels': (_) => const LevelRoadmapScreen(),
+        '/daily': (_) => const DailyHubScreen(),
+        '/retention': (_) => const RetentionHubScreen(),
+        '/guild-war': (_) => const GuildWarScreen(),
+        '/tournament': (_) => const TournamentScreen(),
+        '/seasonal-event': (_) => const SeasonalEventScreen(),
+      },
+      home: const MainMenuScreen(),
     );
   }
 }
 
-// ============================================================
-// Upgrade Display Widget -- shows upgrade tiles for the shop UI
-// ============================================================
-
-/// A reusable upgrade tile for listing purchasable upgrades.
-/// Designed for integration into the Research Lab or a dedicated
-/// Upgrades screen.
-class UpgradeTileWidget extends StatelessWidget {
-  final Upgrade upgrade;
-  final int playerCurrency;
-  final VoidCallback? onPurchase;
-
-  const UpgradeTileWidget({
-    super.key,
-    required this.upgrade,
-    required this.playerCurrency,
-    this.onPurchase,
-  });
+class MainMenuScreen extends StatelessWidget {
+  const MainMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isMaxed = upgrade.currentLevel >= upgrade.maxLevel;
-    final cost = upgrade.costForNextLevel;
-    final canAfford = !isMaxed && playerCurrency >= cost;
-
-    return Card(
-      color: isMaxed
-          ? Colors.purple.withValues(alpha: 0.15)
-          : const Color(0xFF2a0038),
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: isMaxed
-              ? MGColors.gold
-              : (canAfford ? Colors.purpleAccent : Colors.transparent),
-          width: 1.5,
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            // Level indicator
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isMaxed
-                    ? MGColors.gold.withValues(alpha: 0.2)
-                    : Colors.purple.withValues(alpha: 0.3),
-                border: Border.all(
-                  color: isMaxed ? MGColors.gold : Colors.purpleAccent,
-                  width: 2,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  '${upgrade.currentLevel}',
-                  style: TextStyle(
-                    color: isMaxed ? MGColors.gold : Colors.purpleAccent,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            // Info column
-            Expanded(
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const Icon(Icons.videogame_asset_rounded, size: 72),
+                  const SizedBox(height: 24),
                   Text(
-                    upgrade.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    MyApp.gameId,
+                    key: const ValueKey('game-id'),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
-                    upgrade.description,
-                    style: const TextStyle(
-                      color: Colors.white60,
-                      fontSize: 12,
-                    ),
+                    MyApp.gameTitle,
+                    key: const ValueKey('game-title'),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
-                    isMaxed
-                        ? 'MAX LEVEL'
-                        : 'Lv.${upgrade.currentLevel}/${upgrade.maxLevel}'
-                            '  |  +${(upgrade.valuePerLevel * 100).toStringAsFixed(0)}% per level',
-                    style: TextStyle(
-                      color: isMaxed ? MGColors.gold : Colors.white38,
-                      fontSize: 11,
-                    ),
+                    'Core Fun: ${MyApp.coreFunLoop}',
+                    key: const ValueKey('core-fun-loop'),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  FilledButton.icon(
+                    key: const ValueKey('start-game'),
+                    onPressed: () => Navigator.of(context).pushNamed('/game'),
+                    icon: const Icon(Icons.play_arrow_rounded),
+                    label: const Text('Start Game'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    key: const ValueKey('level-roadmap'),
+                    onPressed: () => Navigator.of(context).pushNamed('/levels'),
+                    icon: const Icon(Icons.map_rounded),
+                    label: const Text('Level Roadmap'),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: const [
+                      _MenuAction(
+                        route: '/engine',
+                        buttonKey: ValueKey('engine-loop'),
+                        icon: Icons.memory_rounded,
+                        label: 'Engine',
+                      ),
+                      _MenuAction(
+                        route: '/retention',
+                        buttonKey: ValueKey('rewards'),
+                        icon: Icons.card_giftcard_rounded,
+                        label: 'Rewards',
+                      ),
+                      _MenuAction(
+                        route: '/daily',
+                        buttonKey: ValueKey('daily-quests'),
+                        icon: Icons.today_rounded,
+                        label: 'Daily',
+                      ),
+                      _MenuAction(
+                        route: '/guild-war',
+                        buttonKey: ValueKey('guild-war'),
+                        icon: Icons.groups_rounded,
+                        label: 'Guild',
+                      ),
+                      _MenuAction(
+                        route: '/tournament',
+                        buttonKey: ValueKey('tournament'),
+                        icon: Icons.emoji_events_rounded,
+                        label: 'Tournament',
+                      ),
+                      _MenuAction(
+                        route: '/seasonal-event',
+                        buttonKey: ValueKey('seasonal-event'),
+                        icon: Icons.event_rounded,
+                        label: 'Event',
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-
-            // Purchase button
-            if (!isMaxed)
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      canAfford ? Colors.purpleAccent : Colors.grey[800],
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-                onPressed: canAfford ? onPurchase : null,
-                child: Text('$cost RP'),
-              )
-            else
-              const Icon(Icons.check_circle, color: MGColors.gold, size: 28),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ============================================================
-// Upgrade List Widget -- groups upgrades by category
-// ============================================================
-
-/// Displays all registered upgrades grouped into Crafting / Recipe / Potion
-/// categories.  Intended for embedding in the Research Lab screen or a
-/// standalone Upgrades tab.
-class UpgradeListWidget extends StatelessWidget {
-  final int playerCurrency;
-  final void Function(String upgradeId) onPurchase;
-
-  const UpgradeListWidget({
-    super.key,
-    required this.playerCurrency,
-    required this.onPurchase,
+class _MenuAction extends StatelessWidget {
+  const _MenuAction({
+    required this.route,
+    required this.buttonKey,
+    required this.icon,
+    required this.label,
   });
 
-  static const _craftingIds = ['crafting_speed', 'material_efficiency', 'batch_size'];
-  static const _recipeIds = ['recipe_slots', 'ingredient_flex'];
-  static const _potionIds = ['potion_potency', 'effect_duration', 'special_chance'];
+  final String route;
+  final ValueKey<String> buttonKey;
+  final IconData icon;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UpgradeManager>(
-      builder: (context, upgradeManager, _) {
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _buildCategoryHeader('Crafting Upgrades', Icons.build),
-            ..._buildUpgradeTiles(upgradeManager, _craftingIds),
-            const SizedBox(height: 16),
-
-            _buildCategoryHeader('Recipe Upgrades', Icons.menu_book),
-            ..._buildUpgradeTiles(upgradeManager, _recipeIds),
-            const SizedBox(height: 16),
-
-            _buildCategoryHeader('Potion Upgrades', Icons.science),
-            ..._buildUpgradeTiles(upgradeManager, _potionIds),
-          ],
-        );
-      },
+    return SizedBox(
+      width: 132,
+      child: OutlinedButton.icon(
+        key: buttonKey,
+        onPressed: () => Navigator.of(context).pushNamed(route),
+        icon: Icon(icon),
+        label: Text(label),
+      ),
     );
   }
+}
 
-  Widget _buildCategoryHeader(String title, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.purpleAccent, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.purpleAccent,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+class GameScreen extends StatefulWidget {
+  const GameScreen({super.key});
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  int levelIndex = 0;
+  int goldBank = 0;
+  int xpBank = 0;
+
+  GameLevelDesign get currentLevel => kLevelDesign[levelIndex];
+
+  void completeAction() {
+    setState(() {
+      goldBank += currentLevel.goldReward;
+      xpBank += currentLevel.xpReward;
+      if (levelIndex < kLevelDesign.length - 1) {
+        levelIndex += 1;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final level = currentLevel;
+    final spawn = kWaveSpawnTable[levelIndex];
+    return Scaffold(
+      appBar: AppBar(title: const Text('Game Ready')),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Primary loop: ${MyApp.coreFunLoop}',
+                  key: const ValueKey('primary-loop'),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Level ${level.levelIndex} - ${level.stage}',
+                  key: const ValueKey('level-name'),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Objective: ${level.objective}',
+                  key: const ValueKey('level-objective'),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Wave ${level.wave} | Difficulty ${level.difficulty.toStringAsFixed(2)}',
+                  key: const ValueKey('difficulty-label'),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Pressure: ${spawn.enemyCount} enemies every '
+                  '${spawn.spawnCadenceSeconds.toStringAsFixed(2)}s',
+                  key: const ValueKey('pressure-label'),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                LinearProgressIndicator(
+                  value: (level.levelIndex / kLevelDesign.length).clamp(0.0, 1.0),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Reward bank: $goldBank gold / $xpBank xp',
+                  key: const ValueKey('reward-bank'),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  key: const ValueKey('complete-action'),
+                  onPressed: completeAction,
+                  icon: const Icon(Icons.check_circle_rounded),
+                  label: const Text('Complete Action'),
+                ),
+              ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FrameLoopGame extends FlameGame {
+  double elapsedSeconds = 0;
+  int frameTicks = 0;
+
+  @override
+  void update(double dt) {
+    elapsedSeconds += dt;
+    frameTicks += 1;
+    super.update(dt);
+  }
+}
+
+class FrameLoopScreen extends StatelessWidget {
+  const FrameLoopScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Engine Loop')),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'GameWidget frame loop is active for runtime input, update, and render validation.',
+              key: ValueKey('engine-loop-status'),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(child: GameWidget(game: _FrameLoopGame())),
         ],
       ),
     );
   }
+}
 
-  List<Widget> _buildUpgradeTiles(
-    UpgradeManager upgradeManager,
-    List<String> ids,
-  ) {
-    return ids.map((id) {
-      final upgrade = upgradeManager.getUpgrade(id);
-      if (upgrade == null) return const SizedBox.shrink();
-      return UpgradeTileWidget(
-        upgrade: upgrade,
-        playerCurrency: playerCurrency,
-        onPurchase: () => onPurchase(id),
-      );
-    }).toList();
+class LevelRoadmapScreen extends StatelessWidget {
+  const LevelRoadmapScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Level Roadmap')),
+      body: ListView.builder(
+        key: const ValueKey('level-list'),
+        padding: const EdgeInsets.all(16),
+        itemCount: kLevelDesign.length,
+        itemBuilder: (context, index) {
+          final level = kLevelDesign[index];
+          final spawn = kWaveSpawnTable[index];
+          return ListTile(
+            leading: CircleAvatar(child: Text('${level.levelIndex}')),
+            title: Text('Level ${level.levelIndex} - ${level.stage}'),
+            subtitle: Text(
+              'Wave ${level.wave} | difficulty ${level.difficulty.toStringAsFixed(2)} | '
+              '${spawn.enemyCount} enemies | reward ${level.goldReward}g/${level.xpReward}xp',
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 
+class DailyHubScreen extends StatelessWidget {
+  const DailyHubScreen({super.key});
 
-void _registerDailyQuests() {
-  final dailyQuest = GetIt.I<DailyQuestManager>();
-
-  dailyQuest.registerQuest(DailyQuest(
-    id: 'craft_potions',
-    title: '포션 제조',
-    description: '포션 5개 제조',
-    targetValue: 5,
-    goldReward: 500,
-    xpReward: 10,
-  ));
-
-  dailyQuest.registerQuest(DailyQuest(
-    id: 'collect_ingredients',
-    title: '재료 수집',
-    description: '희귀 재료 10개 수집',
-    targetValue: 10,
-    goldReward: 300,
-    xpReward: 5,
-  ));
-
-  dailyQuest.registerQuest(DailyQuest(
-    id: 'research_recipes',
-    title: '레시피 연구',
-    description: '새 레시피 3개 발견',
-    targetValue: 3,
-    goldReward: 200,
-    xpReward: 3,
-  ));
+  @override
+  Widget build(BuildContext context) {
+    return const _SimpleScreen(
+      title: 'Daily Quests',
+      detail: 'Short goals keep the fun loop moving.',
+      icon: Icons.today_rounded,
+    );
+  }
 }
 
+class RetentionHubScreen extends StatelessWidget {
+  const RetentionHubScreen({super.key});
 
-void _registerAchievements() {
-  final achievement = GetIt.I<AchievementManager>();
-  
-  achievement.registerAchievement(Achievement(
-    id: 'gold_1000',
-    title: '골드 1000 달성',
-    description: '총 골드 1000을 모으세요',
-    iconAsset: 'assets/achievements/gold_1000.png',
-  ));
-  
-  achievement.registerAchievement(Achievement(
-    id: 'level_10',
-    title: '레벨 10 달성',
-    description: '레벨 10에 도달하세요',
-    iconAsset: 'assets/achievements/level_10.png',
-  ));
-  
-  achievement.registerAchievement(Achievement(
-    id: 'play_100',
-    title: '100판 플레이',
-    description: '게임을 100판 플레이하세요',
-    iconAsset: 'assets/achievements/play_100.png',
-  ));
+  @override
+  Widget build(BuildContext context) {
+    return const _SimpleScreen(
+      title: 'Rewards',
+      detail: 'Progression loop: return, claim, improve.',
+      icon: Icons.card_giftcard_rounded,
+    );
+  }
 }
 
-void _registerCollections() {
-  final collection = GetIt.I<CollectionManager>();
+class GuildWarScreen extends StatelessWidget {
+  const GuildWarScreen({super.key});
 
-  // Characters 컬렉션
-  collection.registerCollection(Collection(
-    id: 'characters',
-    name: '캐릭터',
-    description: '모든 캐릭터를 수집하세요',
-    items: const [
-      CollectionItem(
-        id: 'char_warrior',
-        name: '전사',
-        description: '강인한 근접 전투 캐릭터',
-        rarity: CollectionRarity.common,
-      ),
-      CollectionItem(
-        id: 'char_mage',
-        name: '마법사',
-        description: '강력한 마법 공격 캐릭터',
-        rarity: CollectionRarity.rare,
-      ),
-      CollectionItem(
-        id: 'char_archer',
-        name: '궁수',
-        description: '원거리 정밀 공격 캐릭터',
-        rarity: CollectionRarity.rare,
-      ),
-      CollectionItem(
-        id: 'char_assassin',
-        name: '암살자',
-        description: '치명적인 은신 공격 캐릭터',
-        rarity: CollectionRarity.epic,
-      ),
-      CollectionItem(
-        id: 'char_healer',
-        name: '힐러',
-        description: '팀을 치유하는 지원 캐릭터',
-        rarity: CollectionRarity.legendary,
-      ),
-    ],
-    completionReward: const CollectionReward(type: RewardType.gold, amount: 10000),
-    milestoneRewards: const {
-      25: CollectionReward(type: RewardType.gold, amount: 1000),
-      50: CollectionReward(type: RewardType.gold, amount: 3000),
-      75: CollectionReward(type: RewardType.gold, amount: 5000),
-    },
-  ));
-
-  // 아이템 해제 콜백 (햅틱 피드백)
-  collection.onItemUnlocked = (collectionId, itemId) {
-    // SettingsManager가 등록되어 있으면 햅틱 피드백
-    debugPrint('Collection item unlocked: $collectionId / $itemId');
-  };
+  @override
+  Widget build(BuildContext context) {
+    return const _SimpleScreen(
+      title: 'Guild War',
+      detail: 'Social competition is reachable from the main loop.',
+      icon: Icons.groups_rounded,
+    );
+  }
 }
 
-void _setupBattlePass() {
-  final bp = GetIt.I<BattlePassManager>();
+class TournamentScreen extends StatelessWidget {
+  const TournamentScreen({super.key});
 
-  final season = BPSeasonBuilder.create28DaySeason(
-    id: 'season_1',
-    nameKr: '시즌 1',
-    startDate: DateTime.now().subtract(const Duration(days: 1)),
-    maxLevel: 50,
-    expPerLevel: 1000,
-  );
-
-  bp.setSeason(season);
-  bp.setMissions(
-    daily: BPSeasonBuilder.createDefaultDailyMissions(),
-    weekly: BPSeasonBuilder.createDefaultWeeklyMissions(),
-  );
+  @override
+  Widget build(BuildContext context) {
+    return const _SimpleScreen(
+      title: 'Tournament',
+      detail: 'Competitive goals are available for mastery.',
+      icon: Icons.emoji_events_rounded,
+    );
+  }
 }
 
-void _setupGacha() {
-  final gacha = GetIt.I<GachaManager>();
+class SeasonalEventScreen extends StatelessWidget {
+  const SeasonalEventScreen({super.key});
 
-  gacha.registerPool(GachaPool(
-    id: 'standard_pool',
-    nameKr: '스탠다드 뽑기',
-    items: [
-      // N (50%)
-      ...List.generate(20, (i) => GachaItem(
-        id: 'n_item_$i',
-        nameKr: '일단 아이템 $i',
-        rarity: GachaRarity.normal,
-      )),
+  @override
+  Widget build(BuildContext context) {
+    return const _SimpleScreen(
+      title: 'Seasonal Event',
+      detail: 'Timed content gives the loop a fresh reason to return.',
+      icon: Icons.event_rounded,
+    );
+  }
+}
 
-      // R (35%)
-      ...List.generate(10, (i) => GachaItem(
-        id: 'r_item_$i',
-        nameKr: '레어 아이템 $i',
-        rarity: GachaRarity.rare,
-      )),
+class _SimpleScreen extends StatelessWidget {
+  const _SimpleScreen({required this.title, required this.detail, required this.icon});
 
-      // SR (12%)
-      ...List.generate(5, (i) => GachaItem(
-        id: 'sr_item_$i',
-        nameKr: '슈퍼레어 아이템 $i',
-        rarity: GachaRarity.superRare,
-      )),
+  final String title;
+  final String detail;
+  final IconData icon;
 
-      // SSR (2.7%)
-      GachaItem(
-        id: 'ssr_item_1',
-        nameKr: '울트라레어 아이템 1',
-        rarity: GachaRarity.ultraRare,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 56),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                key: const ValueKey('screen-title'),
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(detail, key: const ValueKey('screen-detail'), textAlign: TextAlign.center),
+            ],
+          ),
+        ),
       ),
-
-      // UR (0.3%)
-      GachaItem(
-        id: 'ur_item_1',
-        nameKr: '레전더리 아이템 1',
-        rarity: GachaRarity.legendary,
-      ),
-    ],
-  ));
+    );
+  }
 }
