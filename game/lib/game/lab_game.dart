@@ -16,6 +16,8 @@ import 'components/skill_projectile.dart';
 import '../features/skill/skill_data.dart';
 import '../features/enemy/enemy_data.dart';
 import '../systems/run_save_manager.dart';
+import 'combo_system.dart';
+import 'achievement_system.dart';
 
 import 'package:mg_common_game/core/ui/components/floating_text_component.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
@@ -29,6 +31,8 @@ class LabGame extends FlameGame {
   final PlayerData playerData = PlayerData();
   final SkillManager skillManager = SkillManager();
   final StageManager stageManager = StageManager();
+  final ComboSystem comboSystem = ComboSystem();
+  final AchievementSystem achievementSystem = AchievementSystem();
   EnemyComponent? _currentEnemy;
   EnemyComponent? get currentEnemy => _currentEnemy;
 
@@ -39,6 +43,7 @@ class LabGame extends FlameGame {
   late TextComponent _playerHpText;
   late TextComponent _manaText;
   late TextComponent _stageText;
+  late TextComponent _comboText;
 
   @override
   Future<void> onLoad() async {
@@ -60,6 +65,10 @@ class LabGame extends FlameGame {
     // await _initTutorial(); // Check tutorial status - TODO: implement
 
     stageManager.addListener(_onStageStateChanged);
+
+    // Initialize combo and achievement systems
+    comboSystem.addListener(_onComboChanged);
+    achievementSystem.onAchievementUnlocked(_onAchievementUnlocked);
 
     _spawnGrid();
     _spawnEnemy();
@@ -98,6 +107,20 @@ class LabGame extends FlameGame {
     );
     add(_manaText);
 
+    _comboText = TextComponent(
+      text: "",
+      position: Vector2(size.x - 20, size.y - 30),
+      anchor: Anchor.topRight,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.orange,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    add(_comboText);
+
     playerData.addListener(() {
       _playerHpText.text =
           "HP: ${playerData.hp.toInt()}/${playerData.maxHp.toInt()}";
@@ -121,6 +144,9 @@ class LabGame extends FlameGame {
     final stage = stageManager.currentStage;
     final emoji = stageManager.getStageColor();
     _stageText.text = "$emoji Stage $stage";
+
+    // Update achievement stats
+    achievementSystem.updateStat('highest_stage', stage);
   }
 
   @override
@@ -160,6 +186,9 @@ class LabGame extends FlameGame {
       onDeath: () {
         debugPrint("Enemy Slain!");
         stageManager.onEnemyDefeated();
+
+        // Update achievement stats
+        achievementSystem.incrementStat('enemies_defeated');
 
         // Show reward screen after delay
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -319,8 +348,11 @@ class LabGame extends FlameGame {
   void _applyEffect(TileType type, int count) {
     if (_currentEnemy == null) return;
 
-    // Mana gain instead of direct damage
-    double manaGain = count * 8.0; // 3 -> 24, 4 -> 32
+    // Record combo and get multiplier
+    final comboMultiplier = comboSystem.recordMatch(type, count);
+
+    // Mana gain with combo multiplier
+    double manaGain = count * 8.0 * comboMultiplier;
 
     // Spawn Particles (Visual Feedback)
     add(
@@ -333,11 +365,19 @@ class LabGame extends FlameGame {
     // Gain mana based on tile type
     if (type != TileType.empty) {
       playerData.gainMana(type, manaGain);
+
+      // Show combo-enhanced floating text
+      final showCombo = comboSystem.currentChain > 1;
+      final comboText = showCombo ? " (${comboSystem.currentChain}x)" : "";
       spawnFloatingText(
-        '+${manaGain.toInt()}',
+        '+${manaGain.toInt()}$comboText',
         Vector2(size.x / 2, size.y / 2 + 50),
         _getColor(type),
       );
+
+      // Update achievement stats
+      achievementSystem.incrementStat('matches_made', count);
+
       // print("Gained $manaGain $type mana. Current: ${playerData.mana[type]}");
     }
   }
@@ -387,6 +427,69 @@ class LabGame extends FlameGame {
         return Colors.purpleAccent;
       case TileType.empty:
         return MGColors.textHighEmphasis;
+    }
+  }
+
+  // Combo system callbacks
+  void _onComboChanged() {
+    if (comboSystem.isChainActive && comboSystem.currentChain > 1) {
+      final rarity = comboSystem.currentRarity;
+      final emoji = ComboSystem.rarityEmoji(rarity);
+      _comboText.text = "$emoji ${comboSystem.currentChain}x Chain";
+      _comboText.textRenderer = TextPaint(
+        style: TextStyle(
+          color: _getRarityColor(rarity),
+          fontSize: 18 + (comboSystem.currentChain.clamp(0, 5) * 2),
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    } else {
+      _comboText.text = "";
+    }
+
+    // Update achievement stats for highest combo
+    if (comboSystem.currentChain > comboSystem.highestChain) {
+      achievementSystem.updateStat('highest_combo', comboSystem.currentChain);
+    }
+  }
+
+  Color _getRarityColor(ComboRarity rarity) {
+    switch (rarity) {
+      case ComboRarity.common:
+        return Colors.white;
+      case ComboRarity.rare:
+        return Colors.blue;
+      case ComboRarity.epic:
+        return Colors.purple;
+      case ComboRarity.legendary:
+        return Colors.yellow;
+    }
+  }
+
+  // Achievement system callback
+  void _onAchievementUnlocked(Achievement achievement) {
+    // Show floating text for achievement unlock
+    spawnFloatingText(
+      "🏆 ${achievement.name}!",
+      Vector2(size.x / 2, size.y / 2 - 50),
+      Colors.gold,
+    );
+
+    // Add bonus gold/XP from achievement
+    playerData.addGold(achievement.rewardGold);
+    playerData.addXp(achievement.rewardXp);
+
+    debugPrint("Achievement Unlocked: ${achievement.name}");
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    skillManager.updateCooldowns(dt);
+
+    // Update combo timer display if chain is active
+    if (comboSystem.isChainActive) {
+      _onComboChanged(); // Refresh combo display
     }
   }
 }
